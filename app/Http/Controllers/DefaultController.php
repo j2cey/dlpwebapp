@@ -47,28 +47,27 @@ class DefaultController extends Controller
       if ($reqtype == '1') {
         $curr_requete->req_code = 1;
         $validite_heure = 3;
-
-        $curr_requete->msg = "votre demande de déplacement alimentaire du " . $date_debut->translatedFormat('jS F Y \\a H:i');
-        $msg_autorisation = "vous avez une autorisation de déplacement alimentaire du " . $date_debut->translatedFormat('jS F Y \\a H:i');
-
         $ecart_autorisation_jrs = 3;
+
+        $curr_requete->msg = "Votre demande de déplacement alimentaire du " . $date_debut->translatedFormat('jS F Y \\à H:i');
+        $msg_autorisation = "Vous avez une autorisation de déplacement alimentaire du " . $date_debut->translatedFormat('jS F Y \\à H:i');
+
       } elseif($reqtype == '2') {
         $curr_requete->req_code = 2;
-
         $validite_heure = 2;
-        $curr_requete->msg = "votre demande de déplacement de santé du " . $date_debut->translatedFormat('jS F Y \\a H:i');
-        $msg_autorisation = "vous avez une autorisation de déplacement de santé du " . $date_debut->translatedFormat('jS F Y \\a H:i');
-
         $ecart_autorisation_jrs = 2;
+
+        $curr_requete->msg = "Votre demande de déplacement de santé du " . $date_debut->translatedFormat('jS F Y \\à H:i');
+        $msg_autorisation = "Vous avez une autorisation de déplacement de santé du " . $date_debut->translatedFormat('jS F Y \\à H:i');
+
       } elseif($reqtype == '3') {
         $curr_requete->req_code = 3;
         $validite_heure = 2;
-
-        $curr_requete->msg = "votre demande de déplacement d urgence du " . $date_debut->translatedFormat('jS F Y \\a H:i');
-        $msg_autorisation = "vous avez une autorisation de déplacement d urgence du " . $date_debut->translatedFormat('jS F Y \\a H:i');
-
-        $validite_heure = 24;
         $ecart_autorisation_jrs = 0;
+
+        $curr_requete->msg = "Votre demande de déplacement d urgence du " . $date_debut->translatedFormat('jS F Y \\à H:i');
+        $msg_autorisation = "Vous avez une autorisation de déplacement d urgence du " . $date_debut->translatedFormat('jS F Y \\à H:i');
+
       } elseif($reqtype == '4') {
         $curr_requete->req_code = 4;
         $curr_requete->msg = $demandeur->consultation();
@@ -87,7 +86,8 @@ class DefaultController extends Controller
         $autorisation_en_cours = $demandeur->autorisationEnCours();
         if (is_null($autorisation_en_cours)) {
 
-            $heures_restantes = $date_debut->diffInHours($date_limite);
+            $heures_restantes = $date_debut->diffInHours($date_limite, false);
+            
             if ($heures_restantes <= 0) {
                 // Heure limite atteinte
                 $curr_requete->req_code = -3;
@@ -102,8 +102,8 @@ class DefaultController extends Controller
                     $date_fin->addHours($validite_heure);
                 }
 
-                $curr_requete->msg = $curr_requete->msg . " au " . $date_fin->translatedFormat('jS F Y \\a H:i') . " a ete validée";
-                $msg_autorisation = $msg_autorisation . " au " . $date_fin->translatedFormat('jS F Y \\a H:i');
+                $curr_requete->msg = $curr_requete->msg . " au " . $date_fin->translatedFormat('jS F Y \\à H:i') . " a ete validée";
+                $msg_autorisation = $msg_autorisation . " au " . $date_fin->translatedFormat('jS F Y \\à H:i');
 
                 // On donne une nouvelle autorisation au Demandeur
                 $new_autorisation = Autorisation::create([
