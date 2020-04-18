@@ -20,7 +20,7 @@ class DefaultController extends Controller
       Carbon::setLocale('fr');
 
       $date_debut = Carbon::now();
-      $date_limite = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, 19, 30, 00);
+      $date_limite = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, 23, 30, 00);
       $date_fin = Carbon::now();
 
       $msg_autorisation = "";
@@ -87,7 +87,7 @@ class DefaultController extends Controller
         if (is_null($autorisation_en_cours)) {
 
             $heures_restantes = $date_debut->diffInHours($date_limite, false);
-            
+
             if ($heures_restantes <= 0) {
                 // Heure limite atteinte
                 $curr_requete->req_code = -3;

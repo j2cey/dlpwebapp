@@ -39,13 +39,13 @@ class AutorisationSetExpired extends Command
      */
     public function handle()
     {
-        //$nb_autorisations_echues = Autorisation::where('is_active', 1)->whereDate('date_fin', '<', Carbon::now())->count();
-        $nb_autorisations_echues = Autorisation::where('is_active', 1)->whereDate('date_fin', '<', Carbon::now())
+        //$nb_autorisations_echues = Autorisation::where('is_active', 1)->where('date_fin', '<', Carbon::now())->count();
+        $nb_autorisations_echues = Autorisation::where('is_active', 1)->where('date_fin', '<', Carbon::now())
           ->update([
               'is_active' => 0
         ]);
-        dd($nb_autorisations_echues);
+        //dd($nb_autorisations_echues);
         $this->info('Command autorisation:setexpired executee avec succes!');
-        \Log::info($nb_autorisations_echues . " autorisations echues.");
+        \Log::info($nb_autorisations_echues . " autorisation(s) echue(s).");
     }
 }
