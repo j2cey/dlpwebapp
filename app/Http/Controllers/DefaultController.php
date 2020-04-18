@@ -103,7 +103,7 @@ class DefaultController extends Controller
                     $date_fin->addHours($validite_heure);
                 }
 
-                $curr_requete->msg = $curr_requete->msg . " au " . $date_fin->translatedFormat('jS F Y \\a H:i') . " a ete validee";
+                $curr_requete->msg = $curr_requete->msg . " au " . $date_fin->translatedFormat('jS F Y \\a H:i') . " a ete validée";
                 $msg_autorisation = $msg_autorisation . " au " . $date_fin->translatedFormat('jS F Y \\a H:i');
 
                 // On donne une nouvelle autorisation au Demandeur
