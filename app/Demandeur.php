@@ -20,7 +20,7 @@ class Demandeur extends Model
 
     public function autorisationEnCours()
     {
-        return $this->autorisations()->where('is_active', 1)->get();
+        return $this->autorisations()->where('is_active', 1)->get()->first();
     }
 
     public function aAutorisationEnCours() {
@@ -28,7 +28,7 @@ class Demandeur extends Model
     }
 
     public function consultation() {
-      $autorisation_en_cours = $this->autorisationEnCours()->first();
+      $autorisation_en_cours = $this->autorisationEnCours();
       //dd($autorisation_en_cours);
       if (is_null($autorisation_en_cours)) {
         return "aucune autorisation eb cours";

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Requete;
 use App\Demandeur;
 use App\Autorisation;
+use Carbon\Carbon;
 
 class DefaultController extends Controller
 {
@@ -15,7 +16,12 @@ class DefaultController extends Controller
 
       $validite_heure = 0;
       $ecart_autorisation_jrs = 0;
-      $date_fin = date('Y-m-d H:i:s');
+
+      Carbon::setLocale('fr');
+
+      $date_debut = Carbon::now();
+      $date_fin = Carbon::now();
+      $msg_autorisation = "";
 
       //$request_parsed = -1;
       //$request_msg = "";
@@ -43,24 +49,35 @@ class DefaultController extends Controller
       // 3. Analyse de la Requete
       if ($reqtype == '1') {
         $curr_requete->req_code = 1;
-        $curr_requete->msg = "Deplacement alimentaire autorise";
+
+        // date('d-m-Y H:i:s'
+        // $date->toTimeString(); // Will output 14:15:16.
+        // $date->toDateString(); // Will output 1975-12-25.
 
         $validite_heure = 3;
-        $date_fin = date('Y-m-d H:i:s', strtotime('now +3 hour'));
+        $date_fin->addHours(3); //date('Y-m-d H:i:s', strtotime('now +3 hour'));
+        $curr_requete->msg = "votre demande de deplacement alimentaire du " . $date_debut->translatedFormat('jS F Y \\a h:i') . " au " . $date_fin->translatedFormat('jS F Y \\a h:i') . " a ete validee";
+        $msg_autorisation = "vous avez une autorisation de deplacement alimentaire du " . $date_debut->translatedFormat('jS F Y \\a h:i') . " au " . $date_fin->translatedFormat('jS F Y \\a h:i');
+
         $ecart_autorisation_jrs = 3;
       } elseif($reqtype == '2') {
         $curr_requete->req_code = 2;
-        $curr_requete->msg = "Deplacement de sante autorise";
 
         $validite_heure = 2;
-        $date_fin = date('Y-m-d H:i:s', strtotime('now +2 hour'));
+        $date_fin->addHours(3);
+        $curr_requete->msg = "votre demande de deplacement de sante du " . $date_debut->translatedFormat('jS F Y \\a h:i') . " au " . $date_fin->translatedFormat('jS F Y \\a h:i') . "a ete validee";
+        $msg_autorisation = "vous avez une autorisation de deplacement de sante du " . $date_debut->translatedFormat('jS F Y \\a h:i') . " au " . $date_fin->translatedFormat('jS F Y \\a h:i');
+
         $ecart_autorisation_jrs = 2;
       } elseif($reqtype == '3') {
         $curr_requete->req_code = 3;
         $curr_requete->msg = "Deplacement d urgence autorise";
 
+        $date_fin->addHours(3);
+        $curr_requete->msg = "votre demande de deplacement d urgence du " . $date_debut->translatedFormat('jS F Y \\a h:i') . " au " . $date_fin->translatedFormat('jS F Y \\a h:i') . "a ete validee";
+        $msg_autorisation = "vous avez une autorisation de deplacement d urgence du " . $date_debut->translatedFormat('jS F Y \\a h:i') . " au " . $date_fin->translatedFormat('jS F Y \\a h:i');
+
         $validite_heure = 24;
-        $date_fin = date('Y-m-d H:i:s', strtotime('now +24 hour'));
         $ecart_autorisation_jrs = 0;
       } elseif($reqtype == '4') {
         $curr_requete->req_code = 4;
@@ -77,24 +94,24 @@ class DefaultController extends Controller
 
       // 4. Octroyer l autorisation
       if ($curr_requete->req_code > -1 && $curr_requete->req_code < 4) {
+        $autorisation_en_cours = $demandeur->autorisationEnCours();
+        if (is_null($autorisation_en_cours)) {
+            // On donne une nouvelle autorisation au Demandeur
+            $new_autorisation = Autorisation::create([
+              'demandeur_id' => $demandeur->id,
+              'requete_id' => $curr_requete->id,
+              'code' => $curr_requete->req_code,
+              'msg' => $msg_autorisation,
+              'is_active' => true,
+              'date_debut' => $date_debut,
+              'date_fin' => $date_fin,
+            ]);
 
-        if ($demandeur->aAutorisationEnCours()) {
-          // Le demandeur a deja une autorisation non echue
-          $curr_requete->req_code = -2;
-          $curr_requete->msg = "Vous avez une autorisation en cours";
+            $demandeur->is_requesting = false;
         } else {
-          // On donne une nouvelle autorisation au Demandeur
-          $new_autorisation = Autorisation::create([
-            'demandeur_id' => $demandeur->id,
-            'requete_id' => $curr_requete->id,
-            'code' => $curr_requete->req_code,
-            'msg' => $curr_requete->msg,
-            'is_active' => true,
-            'date_debut' => now(),
-            'date_fin' => $date_fin,
-          ]);
-
-          $demandeur->is_requesting = false;
+            // Le demandeur a deja une autorisation non echue
+            $curr_requete->req_code = -2;
+            $curr_requete->msg = $autorisation_en_cours->msg . " en cours";
         }
       }
 
