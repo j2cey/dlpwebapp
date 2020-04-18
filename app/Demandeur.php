@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Demandeur extends Model
 {
@@ -35,5 +36,12 @@ class Demandeur extends Model
       } else {
         return $autorisation_en_cours->msg;
       }
+    }
+
+    public function plafondAutorisationsHebdoAtteint($code, $plafond) {
+      $nb_autorisations_de_la_semaine = $this->autorisations()
+        ->whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+        ->count();
+      return ($nb_autorisations_de_la_semaine >= $plafond);
     }
 }
