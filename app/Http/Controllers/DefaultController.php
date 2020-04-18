@@ -88,8 +88,7 @@ class DefaultController extends Controller
         if (is_null($autorisation_en_cours)) {
 
             $heures_restantes = $date_debut->diffInHours($date_limite);
-
-            if ($heures_restantes < 0) {
+            if ($heures_restantes <= 0) {
                 // Heure limite atteinte
                 $curr_requete->req_code = -3;
                 $demandeur->is_requesting = false;
