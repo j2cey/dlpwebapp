@@ -31,7 +31,7 @@ class Demandeur extends Model
       $autorisation_en_cours = $this->autorisationEnCours();
       //dd($autorisation_en_cours);
       if (is_null($autorisation_en_cours)) {
-        return "aucune autorisation eb cours";
+        return "aucune autorisation en cours";
       } else {
         return $autorisation_en_cours->msg;
       }
