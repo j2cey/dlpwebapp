@@ -104,7 +104,7 @@ class DefaultController extends Controller
                 }
 
                 $curr_requete->msg = $curr_requete->msg . " au " . $date_fin->translatedFormat('jS F Y \\a H:i') . " a ete validee";
-                $msg_autorisation = $msg_autorisation . " au " . $date_fin->translaj2tedFormat('jS F Y \\a H:i');
+                $msg_autorisation = $msg_autorisation . " au " . $date_fin->translatedFormat('jS F Y \\a H:i');
 
                 // On donne une nouvelle autorisation au Demandeur
                 $new_autorisation = Autorisation::create([
