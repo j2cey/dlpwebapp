@@ -19,7 +19,7 @@ class DefaultController extends Controller
       Carbon::setLocale('fr');
 
       $date_debut = Carbon::now();
-      $date_intervaldemande_debut = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, 01, 00, 00);
+      $date_intervaldemande_debut = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, 06, 00, 00);
       $date_intervaldemande_fin = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, 19, 30, 00);
       $date_fin = Carbon::now();
 
