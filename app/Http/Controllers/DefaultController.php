@@ -19,7 +19,8 @@ class DefaultController extends Controller
       Carbon::setLocale('fr');
 
       $date_debut = Carbon::now();
-      $date_limite = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, 23, 58, 00);
+      $date_intervaldemande_debut = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, 01, 00, 00);
+      $date_intervaldemande_fin = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, 19, 30, 00);
       $date_fin = Carbon::now();
 
       $msg_autorisation = "";
@@ -28,6 +29,7 @@ class DefaultController extends Controller
       $curr_requete = Requete::create([
         'reqtype' => $reqtype,
         'phonenum' => $phonenum,
+        'date_start' => Carbon::now(),
       ]);
 
       // 2. Essaie de trouver le demandeur
@@ -89,14 +91,11 @@ class DefaultController extends Controller
                 $demandeur->is_requesting = false;
                 $curr_requete->msg = "Désolé. Vous avez atteint le Plafond Hebdomadaire pour ce type d autorisation";
             } else {
-                $heures_restantes = $date_debut->diffInHours($date_limite, false);
 
-                if ($heures_restantes <= 0) {
-                    // Heure limite atteinte
-                    $curr_requete->req_code = -3;
-                    $demandeur->is_requesting = false;
-                    $curr_requete->msg = "Désolé. Heure limite atteinte pour les demandes d autorisation";
-                } else {
+                $debut_in_interval = ($date_debut->between($date_intervaldemande_debut, $date_intervaldemande_fin));
+
+                if ($debut_in_interval) {
+                    $heures_restantes = $date_debut->diffInHours($date_intervaldemande_fin, false);
                     if ($heures_restantes < $validite_heure) {
                         // On assigne la date limite
                         $date_fin = $date_limite;
@@ -120,6 +119,11 @@ class DefaultController extends Controller
                     ]);
 
                     $demandeur->is_requesting = false;
+                } else {
+                    // Heure debut demandes non-atteinte
+                    $curr_requete->req_code = -3;
+                    $demandeur->is_requesting = false;
+                    $curr_requete->msg = "Désolé. Les demandes d autorisation ne sont pas déjà disponibles";
                 }
             }
         } else {
@@ -131,7 +135,11 @@ class DefaultController extends Controller
       }
 
       // A la fin
+      $curr_requete->date_end = Carbon::now();
+      $curr_requete->duree_traitement_milli = $curr_requete->date_start->diffInMilliseconds($curr_requete->date_end);
+      $curr_requete->duree_traitement_micro = $curr_requete->date_start->diffInMicroseconds($curr_requete->date_end);
       $curr_requete->save();
+
       $demandeur->save();
 
       return response()->json([

@@ -21,9 +21,14 @@ class CreateRequetesTable extends Migration
 
             $table->unsignedBigInteger('demandeur_id')->nullable()->comment('reference du demandeur (le cas echeant)');
             $table->foreign('demandeur_id')->references('id')->on('demandeurs')->onDelete('set null');
-            
+
             $table->integer('req_code')->nullable()->comment('Code de la requete - apres analyse');
             $table->string('msg')->nullable()->comment('Message de la reponse');
+
+            $table->dateTime('date_start')->comment('marque le debut de la requete');
+            $table->dateTime('date_end')->nullable()->comment('marque la fin de la requete');
+            $table->bigInteger('duree_traitement_milli')->nullable()->comment('duree de traitement en milisecondes');
+            $table->bigInteger('duree_traitement_micro')->nullable()->comment('duree de traitement en microsecondes');
 
             $table->timestamps();
         });
