@@ -23,6 +23,11 @@ class DefaultController extends Controller
       $date_intervaldemande_fin = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, 19, 30, 00);
       $date_fin = Carbon::now();
 
+      $date_debut->addHours(1);
+      $date_intervaldemande_debut->addHours(1);
+      $date_intervaldemande_fin->addHours(1);
+      $date_fin->addHours(1);
+
       $msg_autorisation = "";
 
       // 1. Enregistrement de la requeete

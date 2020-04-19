@@ -39,8 +39,13 @@ class AutorisationSetExpired extends Command
      */
     public function handle()
     {
+        Carbon::setLocale('fr');
+        
+        $date_now = Carbon::now();
+        $date_now->addHours(1);
+
         //$nb_autorisations_echues = Autorisation::where('is_active', 1)->where('date_fin', '<', Carbon::now())->count();
-        $nb_autorisations_echues = Autorisation::where('is_active', 1)->where('date_fin', '<', Carbon::now())
+        $nb_autorisations_echues = Autorisation::where('is_active', 1)->where('date_fin', '<', $date_now)
           ->update([
               'is_active' => 0
         ]);
