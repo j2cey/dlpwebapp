@@ -4,6 +4,11 @@
     <li class="has-submenu">
         <a href="/"><i class="ti-home"></i>Dashboard</a>
     </li>
+
+    <li class="has-submenu">
+        <a href="{{ action('ConsultationController@index') }}"><i class="ti-search"></i></i>Consultation</a>
+    </li>
+
     <!-- Dashboard - Fin -->
 
     <!-- <li class="has-submenu">

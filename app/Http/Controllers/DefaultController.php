@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Requete;
 use App\TypeDemande;
+use App\TypeReponse;
 use App\Autorisation;
 use Carbon\Carbon;
 
@@ -82,12 +83,16 @@ class DefaultController extends Controller
           $autorisation_en_cours = Autorisation::where('demandeur', $phonenum)->where('is_active', 1)->first();
 
           if (is_null($autorisation_en_cours)) {
-              $msg_result = "Aucune Autorisation En Cours";
+              //$msg_result = "Aucune Autorisation En Cours";
+              $type_reponse = TypeReponse::where('code', -6)->get()->first();
+              $msg_result = $type_reponse->msg_reponse;
           } else {
-              $msg_result = $type_demande->getMessageConsultation($autorisation_en_cours->date_debut, $autorisation_en_cours->date_fin);
+              $type_reponse = TypeReponse::where('code', 2)->get()->first();
+              $msg_result = $autorisation_en_cours->type_demande->getMessageConsultation($autorisation_en_cours->date_debut, $autorisation_en_cours->date_fin);
           }
-          $curr_requete->Finalize($type_demande->code);
+          $curr_requete->Finalize($type_reponse->id); //$curr_requete->Finalize($type_demande->code);
       } elseif ($type_demande->code == "1" || $type_demande->code == "2" || $type_demande->code == "3") {
+
           $autorisation_en_cours = Autorisation::where('demandeur', $phonenum)->where('is_active', 1)->first();
 
           if (is_null($autorisation_en_cours)) {
@@ -97,8 +102,10 @@ class DefaultController extends Controller
                 ->count();
               if ($autorisation_hebdo_obtenues >= $type_demande->plafond_hebdo) {
                   // Plafond Hebdo atteint
-                  $msg_result = "Désolé. Vous avez atteint le Plafond Hebdomadaire pour ce type d autorisation";
-                  $curr_requete->Finalize(-4);
+                  //$msg_result = "Désolé. Vous avez atteint le Plafond Hebdomadaire pour ce type d autorisation";
+                  $type_reponse = TypeReponse::where('code', -5)->get()->first();
+                  $msg_result = $type_reponse->msg_reponse;
+                  $curr_requete->Finalize($type_reponse->id);
               } else {
 
                   $debut_in_interval = ($date_debut->between($date_intervaldemande_debut, $date_intervaldemande_fin));
@@ -107,7 +114,7 @@ class DefaultController extends Controller
                       $heures_restantes = $date_debut->diffInHours($date_intervaldemande_fin, false);
                       if ($heures_restantes < $type_demande->validite_heure) {
                           // On assigne la date limite
-                          $date_fin = $date_limite;
+                          $date_fin = $date_intervaldemande_fin;
                       } else {
                           // On recupère la date de fin normale
                           $date_fin->addHours($type_demande->validite_heure);
@@ -116,7 +123,8 @@ class DefaultController extends Controller
                       $msg_result =  $type_demande->getMessageSucces($date_debut, $date_fin);
 
                       // On donne une nouvelle autorisation au Demandeur
-                      $curr_requete->Finalize($type_demande->code);
+                      $type_reponse = TypeReponse::where('code', 1)->get()->first();
+                      $curr_requete->Finalize($type_reponse->id);
 
                       $new_autorisation = Autorisation::create([
                         'demandeur' => $phonenum,
@@ -130,19 +138,26 @@ class DefaultController extends Controller
                       ]);
                   } else {
                       // Heure debut demandes non-atteinte
-                      $msg_result = "Désolé. Les demandes d autorisation ne sont pas déjà disponibles";
-                      $curr_requete->Finalize(-3);
+                      // $msg_result = "Désolé. Les demandes d autorisation ne sont pas déjà disponibles";
+                      // $curr_requete->Finalize(-3);
+                      $type_reponse = TypeReponse::where('code', -4)->get()->first();
+                      $msg_result = $type_reponse->msg_reponse;
+                      $curr_requete->Finalize($type_reponse->id);
                   }
               }
           } else {
               // Le demandeur a deja une autorisation non echue
+              $type_reponse = TypeReponse::where('code', -3)->get()->first();
               $msg_result = $type_demande->getMessageConsultation($autorisation_en_cours->date_debut, $autorisation_en_cours->date_fin);
-              $curr_requete->Finalize(-2);
+              $curr_requete->Finalize($type_reponse->id);
           }
       } else {
           // Bad Requete
-          $msg_result = $type_demande->getMessageSucces("","");
-          $curr_requete->Finalize(-1);
+          // $msg_result = $type_demande->getMessageSucces("","");
+          // $curr_requete->Finalize(-1);
+          $type_reponse = TypeReponse::where('code', -2)->get()->first();
+          $msg_result = $type_reponse->msg_reponse;
+          $curr_requete->Finalize($type_reponse->id);
       }
 
       return response()->json([

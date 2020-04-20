@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 
-Route::get('/', 'DashboardController@index');
+Route::get('/', 'DashboardController@index')->middleware('auth');
 
 Route::get('/generate/{nbrequetes}', 'DefaultController@generaterequest');
 
@@ -26,3 +26,5 @@ Route::get('/{reqtype}/{phonenum}/', 'DefaultController@defaultrequest');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::resource('consultations','ConsultationController')->middleware('auth');
