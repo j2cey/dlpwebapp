@@ -32,7 +32,7 @@ class Demandeur extends Model
       $autorisation_en_cours = $this->autorisationEnCours();
       //dd($autorisation_en_cours);
       if (is_null($autorisation_en_cours)) {
-        return "aucune autorisation en cours";
+        return "Aucune Autorisation en cours";
       } else {
         return $autorisation_en_cours->msg;
       }
@@ -41,6 +41,7 @@ class Demandeur extends Model
     public function plafondAutorisationsHebdoAtteint($code, $plafond) {
       $nb_autorisations_de_la_semaine = $this->autorisations()
         ->whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+        ->where('code', $code)
         ->count();
       return ($nb_autorisations_de_la_semaine >= $plafond);
     }
