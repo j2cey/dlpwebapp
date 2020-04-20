@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Requete;
-use App\Demandeur;
+use App\TypeDemande;
 use App\Autorisation;
 use Carbon\Carbon;
 
@@ -47,14 +47,6 @@ class DefaultController extends Controller
 
     public function defaultrequest($reqtype, $phonenum) {
 
-      $validite_heure = 0;
-      $plafond_hebdo = 0;
-      $reqtype_name_arr = [
-        "1"=>"Deplacement Alimentaire",
-        "2"=>"Deplacement Sante",
-        "3"=>"Deplacement Urgence",
-        "4"=>"Consultation Autorisation"];
-
       Carbon::setLocale('fr');
 
       $date_debut = Carbon::now();
@@ -67,134 +59,94 @@ class DefaultController extends Controller
       //$date_intervaldemande_fin->addHours(1);
       $date_fin->addHours(1);
 
+      $msg_result = "";
       $msg_autorisation = "";
 
-      // 1. Enregistrement de la requeete
-      $curr_requete = Requete::create([
-        'reqtype' => $reqtype,
-        'phonenum' => $phonenum,
-        'reqtype_name' => $reqtype_name_arr[$reqtype] ?? "Bad Request",
-        'date_start' => Carbon::now(),
-        'created_at' => Carbon::now()->addHours(1),
-        'updated_at' => Carbon::now()->addHours(1),
-      ]);
-
-      // 2. Essaie de trouver le demandeur
-      $demandeur = Demandeur::where('phonenum', $curr_requete->phonenum)->first();
-      if (is_null($demandeur)) {
-        $demandeur = Demandeur::create([
-          'phonenum' => $phonenum,
-          'is_requesting' => true,
-          'created_at' => Carbon::now()->addHours(1),
-          'updated_at' => Carbon::now()->addHours(1),
-        ]);
+      // Type Demande
+      $type_demande = TypeDemande::where('code', $reqtype)->get()->first();
+      if (is_null($type_demande)) {
+          $type_demande = TypeDemande::where('code', "5")->get()->first();
       }
-      $curr_requete->demandeur_id = $demandeur->id;
 
-      // 3. Analyse de la Requete
-      if ($reqtype == '1') {
-        $curr_requete->resp_code = 1;
-        $validite_heure = 3;
-        $plafond_hebdo = 3;
+      // Creation Nouvel objet requete
+      $curr_requete = new Requete();
+      $curr_requete->reqtype = $reqtype;
+      $curr_requete->phonenum = $phonenum;
+      $curr_requete->type_demande_id = $type_demande->id;
+      $curr_requete->date_start = Carbon::now();
+      $curr_requete->created_at = Carbon::now()->addHours(1);
+      $curr_requete->updated_at = Carbon::now()->addHours(1);
 
-        $curr_requete->msg = "Votre demande de déplacement alimentaire du " . $date_debut->translatedFormat('jS F Y \\à H:i');
-        $msg_autorisation = "Vous avez une autorisation de déplacement alimentaire du " . $date_debut->translatedFormat('jS F Y \\à H:i');
+      if ($type_demande->code == "4") {
+          // Consultation
+          $autorisation_en_cours = Autorisation::where('demandeur', $phonenum)->where('is_active', 1)->first();
 
-      } elseif($reqtype == '2') {
-        $curr_requete->resp_code = 2;
-        $validite_heure = 2;
-        $plafond_hebdo = 2;
+          if (is_null($autorisation_en_cours)) {
+              $msg_result = "Aucune Autorisation En Cours";
+          } else {
+              $msg_result = $type_demande->getMessageConsultation($autorisation_en_cours->date_debut, $autorisation_en_cours->date_fin);
+          }
+          $curr_requete->Finalize($type_demande->code);
+      } elseif ($type_demande->code == "1" || $type_demande->code == "2" || $type_demande->code == "3") {
+          $autorisation_en_cours = Autorisation::where('demandeur', $phonenum)->where('is_active', 1)->first();
 
-        $curr_requete->msg = "Votre demande de déplacement de santé du " . $date_debut->translatedFormat('jS F Y \\à H:i');
-        $msg_autorisation = "Vous avez une autorisation de déplacement de santé du " . $date_debut->translatedFormat('jS F Y \\à H:i');
+          if (is_null($autorisation_en_cours)) {
+              $autorisation_hebdo_obtenues = Autorisation::whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+                ->where('type_demande_id', $type_demande->id)
+                ->where('demandeur', $phonenum)
+                ->count();
+              if ($autorisation_hebdo_obtenues >= $type_demande->plafond_hebdo) {
+                  // Plafond Hebdo atteint
+                  $msg_result = "Désolé. Vous avez atteint le Plafond Hebdomadaire pour ce type d autorisation";
+                  $curr_requete->Finalize(-4);
+              } else {
 
-      } elseif($reqtype == '3') {
-        $curr_requete->resp_code = 3;
-        $validite_heure = 2;
-        $plafond_hebdo = 24;
+                  $debut_in_interval = ($date_debut->between($date_intervaldemande_debut, $date_intervaldemande_fin));
 
-        $curr_requete->msg = "Votre demande de déplacement d urgence du " . $date_debut->translatedFormat('jS F Y \\à H:i');
-        $msg_autorisation = "Vous avez une autorisation de déplacement d urgence du " . $date_debut->translatedFormat('jS F Y \\à H:i');
+                  if ($debut_in_interval) {
+                      $heures_restantes = $date_debut->diffInHours($date_intervaldemande_fin, false);
+                      if ($heures_restantes < $type_demande->validite_heure) {
+                          // On assigne la date limite
+                          $date_fin = $date_limite;
+                      } else {
+                          // On recupère la date de fin normale
+                          $date_fin->addHours($type_demande->validite_heure);
+                      }
 
-      } elseif($reqtype == '4') {
-        $curr_requete->resp_code = 4;
-        $curr_requete->msg = $demandeur->consultation();
+                      $msg_result =  $type_demande->getMessageSucces($date_debut, $date_fin);
 
-        $validite_heure = 0;
-        $plafond_hebdo = 0;
+                      // On donne une nouvelle autorisation au Demandeur
+                      $curr_requete->Finalize($type_demande->code);
 
+                      $new_autorisation = Autorisation::create([
+                        'demandeur' => $phonenum,
+                        'requete_id' => $curr_requete->id,
+                        'type_demande_id' => $type_demande->id,
+                        'is_active' => true,
+                        'date_debut' => $date_debut,
+                        'date_fin' => $date_fin,
+                        'created_at' => Carbon::now()->addHours(1),
+                        'updated_at' => Carbon::now()->addHours(1),
+                      ]);
+                  } else {
+                      // Heure debut demandes non-atteinte
+                      $msg_result = "Désolé. Les demandes d autorisation ne sont pas déjà disponibles";
+                      $curr_requete->Finalize(-3);
+                  }
+              }
+          } else {
+              // Le demandeur a deja une autorisation non echue
+              $msg_result = $type_demande->getMessageConsultation($autorisation_en_cours->date_debut, $autorisation_en_cours->date_fin);
+              $curr_requete->Finalize(-2);
+          }
       } else {
-        $curr_requete->resp_code = -1;
-        $demandeur->is_requesting = false;
-        $curr_requete->msg = "Bad Request";
+          // Bad Requete
+          $msg_result = $type_demande->getMessageSucces("","");
+          $curr_requete->Finalize(-1);
       }
-
-      // 4. Octroyer l autorisation
-      if ($curr_requete->resp_code > -1 && $curr_requete->resp_code < 4) {
-        $autorisation_en_cours = $demandeur->autorisationEnCours();
-        if (is_null($autorisation_en_cours)) {
-
-            if ($demandeur->plafondAutorisationsHebdoAtteint($curr_requete->resp_code, $plafond_hebdo)) {
-                // Plafond Hebdo atteint
-                $curr_requete->resp_code = -4;
-                $demandeur->is_requesting = false;
-                $curr_requete->msg = "Désolé. Vous avez atteint le Plafond Hebdomadaire pour ce type d autorisation";
-            } else {
-
-                $debut_in_interval = ($date_debut->between($date_intervaldemande_debut, $date_intervaldemande_fin));
-
-                if ($debut_in_interval) {
-                    $heures_restantes = $date_debut->diffInHours($date_intervaldemande_fin, false);
-                    if ($heures_restantes < $validite_heure) {
-                        // On assigne la date limite
-                        $date_fin = $date_limite;
-                    } else {
-                        // On recupère la date de fin normale
-                        $date_fin->addHours($validite_heure);
-                    }
-
-                    $curr_requete->msg = $curr_requete->msg . " au " . $date_fin->translatedFormat('jS F Y \\à H:i') . " a ete validée";
-                    $msg_autorisation = $msg_autorisation . " au " . $date_fin->translatedFormat('jS F Y \\à H:i');
-
-                    // On donne une nouvelle autorisation au Demandeur
-                    $new_autorisation = Autorisation::create([
-                      'demandeur_id' => $demandeur->id,
-                      'requete_id' => $curr_requete->id,
-                      'code' => $curr_requete->resp_code,
-                      'msg' => $msg_autorisation,
-                      'is_active' => true,
-                      'date_debut' => $date_debut,
-                      'date_fin' => $date_fin,
-                      'created_at' => Carbon::now()->addHours(1),
-                      'updated_at' => Carbon::now()->addHours(1),
-                    ]);
-
-                    $demandeur->is_requesting = false;
-                } else {
-                    // Heure debut demandes non-atteinte
-                    $curr_requete->resp_code = -3;
-                    $demandeur->is_requesting = false;
-                    $curr_requete->msg = "Désolé. Les demandes d autorisation ne sont pas déjà disponibles";
-                }
-            }
-        } else {
-            // Le demandeur a deja une autorisation non echue
-            $curr_requete->resp_code = -2;
-            $demandeur->is_requesting = false;
-            $curr_requete->msg = $autorisation_en_cours->msg . " en cours";
-        }
-      }
-
-      // A la fin
-      $curr_requete->date_end = Carbon::now();
-      $curr_requete->duree_traitement_milli = $curr_requete->date_start->diffInMilliseconds($curr_requete->date_end);
-      $curr_requete->duree_traitement_micro = $curr_requete->date_start->diffInMicroseconds($curr_requete->date_end);
-      $curr_requete->save();
-
-      $demandeur->save();
 
       return response()->json([
-        'message' => $curr_requete->msg
+        'message' => $msg_result
       ]);
     }
 }

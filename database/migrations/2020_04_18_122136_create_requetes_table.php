@@ -18,13 +18,13 @@ class CreateRequetesTable extends Migration
 
             $table->string('reqtype', 100)->comment('Parametre reqtype la requete');
             $table->string('phonenum', 100)->comment('Parametre phonenum la requete');
-            $table->string('reqtype_name', 100)->comment('Nom du Type de requete');
+            //$table->string('reqtype_name', 100)->comment('Nom du Type de requete');
 
-            $table->unsignedBigInteger('demandeur_id')->nullable()->comment('reference du demandeur (le cas echeant)');
-            $table->foreign('demandeur_id')->references('id')->on('demandeurs')->onDelete('set null');
+            $table->unsignedBigInteger('type_demande_id')->nullable()->comment('reference du type de demande');
+            $table->foreign('type_demande_id')->references('id')->on('type_demandes')->onDelete('set null');
 
-            $table->integer('resp_code')->nullable()->comment('Code de la reponse a la requete - apres analyse');
-            $table->string('msg')->nullable()->comment('Message de la reponse');
+            $table->integer('resp_code')->nullable()->comment('Code de la reponse a la requete - apres traitement');
+            //$table->string('msg')->nullable()->comment('Message de la reponse');
 
             $table->dateTime('date_start')->comment('marque le debut de la requete');
             $table->dateTime('date_end')->nullable()->comment('marque la fin de la requete');
@@ -42,9 +42,6 @@ class CreateRequetesTable extends Migration
      */
     public function down()
     {
-        Schema::table('requetes', function (Blueprint $table) {
-            $table->dropForeign(['demandeur_id']);
-        });
         Schema::dropIfExists('requetes');
     }
 }

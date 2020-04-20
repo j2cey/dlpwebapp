@@ -13,15 +13,15 @@ class CreateDemandeursTable extends Migration
      */
     public function up()
     {
-        Schema::create('demandeurs', function (Blueprint $table) {
-            $table->id();
-            $table->string('phonenum', 100)->comment('Numero de telephone du demandeur');
-            $table->boolean('is_requesting')->default(false)->comment('indique le demandeur a une requete en cours');
-
-            $table->index('phonenum');
-
-            $table->timestamps();
-        });
+        // Schema::create('demandeurs', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('phonenum', 100)->comment('Numero de telephone du demandeur');
+        //     $table->boolean('is_requesting')->default(false)->comment('indique le demandeur a une requete en cours');
+        //
+        //     $table->index('phonenum');
+        //
+        //     $table->timestamps();
+        // });
     }
 
     /**
@@ -31,9 +31,9 @@ class CreateDemandeursTable extends Migration
      */
     public function down()
     {
-        Schema::table('demandeurs', function (Blueprint $table) {
-            $table->dropIndex(['phonenum']);
-        });
-        Schema::dropIfExists('demandeurs');
+        // Schema::table('demandeurs', function (Blueprint $table) {
+        //     $table->dropIndex(['phonenum']);
+        // });
+        // Schema::dropIfExists('demandeurs');
     }
 }
