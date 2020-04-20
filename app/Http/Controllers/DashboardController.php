@@ -17,6 +17,11 @@ use Carbon\Carbon;
 class DashboardController extends Controller
 {
     public function index() {
+
+        $chart = new RequeteChart;
+        $chart->labels(['One', 'Two', 'Three', 'Four']);
+        $chart->dataset('My dataset 1', 'line', [1, 2, 3, 4]);
+
         $browser_total_raw = DB::raw('count(*) as total');
         $reqs = Requete::getQuery()
                      ->select('created_at', $browser_total_raw)
@@ -25,12 +30,14 @@ class DashboardController extends Controller
 
         $reqs = Requete::selectRaw("COUNT(*) number, DATE_FORMAT(created_at, '%Y %m %e') date")
                  ->groupBy('date')
-                 ->pluck('number','date');
+                 ->pluck('nombre','date');
 
-        $reqs = Requete::selectRaw("COUNT(*) number, DATE_FORMAT(created_at, '%Y %m %e') date, req_code as code")
-                  ->groupBy('date','req_code')
+        $reqs = Requete::pluck();
+
+        $reqs_byday_bytype = Requete::selectRaw("DATE_FORMAT(created_at, '%Y %m %e') date, reqtype_name as type, COUNT(*) nombre")
+                  ->groupBy('date','reqtype_name')
                   ->get();
-        return $reqs;
-        return view('welcome',compact('pie_chart', 'line_chart', 'areaspline_chart', 'percentage_chart', 'geo_chart', 'area_chart', 'donut_chart'));
+        //return $reqs;
+        return view('welcome',compact('chart'));
     }
 }

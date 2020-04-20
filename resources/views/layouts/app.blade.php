@@ -100,6 +100,9 @@
         <script src="{{asset('assets/js/jquery.nicescroll.js')}}"></script>
         <script src="{{asset('assets/js/jquery.scrollTo.min.js')}}"></script>
 
+        <!-- Chartjs -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js" charset="utf-8"></script>
+
         <!--Morris Chart-->
         <!-- <script src= "{{asset('assets/plugins/morris/morris.min.js')}}"></script> -->
         <!-- <script src= "{{asset('assets/plugins/raphael/raphael-min.js')}}"></script> -->

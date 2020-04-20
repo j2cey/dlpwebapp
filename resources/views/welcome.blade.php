@@ -62,29 +62,10 @@
           <div class="card-body">
               <h4 class="mt-12 m-b-12 header-title">Détails Types Article</h4>
 
-              <!-- <div class="table-responsive"> -->
-              <!-- <div style="position: relative; height: 200px; overflow: auto; display: block;">
-                  <table class="table table-hover mb-0"> -->
+              {!! $chart->container() !!}
 
-                  <div class="table-responsive">
-                    <table class="table table-hover mb-12">
-                      <thead>
-                          <!-- <tr class="titles">
-                              <th>#</th>
-                              <th>Libelle</th>
-                              <th>Statut</th>
-                              <th>Articles</th>
-                              <th>Articles en Stock</th>
-                              <th>Articles en Affectation</th>
-                              <th>Articles en Bon Etat</th>
-                              <th>Articles en Panne</th>
-                          </tr> -->
-                      </thead>
-                      <tbody>
+              {!! $chart->script() !!}
 
-                      </tbody>
-                    </table>
-              </div>
           </div>
       </div>
     </div>
