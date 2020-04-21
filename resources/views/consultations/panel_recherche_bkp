@@ -1,0 +1,8 @@
+<select class="form-control" name="statauts[]" id="statutautorisation" style="width:100%" multiple="multiple">
+  @if(isset($statauts))
+    @forelse ($statauts as $id => $display)
+        <option value="{{ $id }}" selected>{{ $display }}</option>
+    @empty
+    @endforelse
+  @endif
+</select>

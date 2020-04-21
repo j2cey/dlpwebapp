@@ -33,21 +33,33 @@ class Requete extends Model
 
     }
 
-    public function scopeSearch($query, $type_demande_id,$dt_deb,$dt_fin) {
-      if ($type_demande_id == null && ($dt_deb == null || $dt_fin == null)) return $query;
+    public function scopeSearch($query,$seltypds,$dt_deb,$dt_fin) {
+      if ($seltypds == null && ($dt_deb == null || $dt_fin == null)) return $query;
 
-      if ($type_demande_id == null) {
+      if ($seltypds == null) {
         return $this->scopeSearchByPeriode($query, $dt_deb,$dt_fin);
+      } elseif($dt_deb == null || $dt_fin == null) {
+        return $this->scopeSearchByTypeDemande($query, $seltypds);
       } else {
-        return $this->scopeSearchByTypeDemande($query, $type_demande_id);
+        return $this->scopeSearchByAll($query,$seltypds,$dt_deb,$dt_fin);
       }
     }
 
-    public function scopeSearchByTypeDemande($query, $type_demande_id) {
-      if ($type_demande_id == null) return $query;
+    public function scopeSearchByTypeDemande($query, $seltypds) {
+      if ($seltypds == null) return $query;
 
       return $query
-        ->where('type_demande_id', '=', $type_demande_id)
+        ->whereIn('type_demande_id', $seltypds)
+        ;
+    }
+
+    public function scopeSearchByStatutAutorisation($query, $statauts) {
+      if ($seltypds == null) return $query;
+
+
+
+      return $query
+        ->whereIn('type_demande_id', $seltypds)
         ;
     }
 
@@ -55,6 +67,15 @@ class Requete extends Model
       if ($dt_deb == null || $dt_fin == null) return $query;
 
       return $query
+        ->whereBetween('created_at', [$dt_deb,$dt_fin])
+        ;
+    }
+
+    public function scopeSearchByAll($query,$seltypds,$dt_deb,$dt_fin) {
+      if ($dt_deb == null || $dt_fin == null) return $query;
+
+      return $query
+        ->whereIn('type_demande_id', $seltypds)
         ->whereBetween('created_at', [$dt_deb,$dt_fin])
         ;
     }

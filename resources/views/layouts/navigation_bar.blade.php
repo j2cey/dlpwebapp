@@ -110,6 +110,8 @@
             <!-- end topbar-main -->
 
             <!-- MENU Start -->
+            @guest
+            @else
             <div class="navbar-custom">
                 <div class="container-fluid">
                     <div id="navigation">
@@ -119,3 +121,4 @@
                     </div> <!-- end #navigation -->
                 </div> <!-- end container -->
             </div> <!-- end navbar-custom -->
+            @endif

@@ -38,7 +38,8 @@
             multidateSeparator: ","
         });
         jQuery('#date-range').datepicker({
-            toggleActive: true
+            toggleActive: true,
+            clearBtn: true
         });
 
         //Bootstrap-MaxLength

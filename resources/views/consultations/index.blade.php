@@ -4,6 +4,10 @@
 
 @endsection
 
+@section('css')
+    @include('consultations.typedemandes_css')
+@endsection
+
 @section('content')
 
 <div class="row">
@@ -67,5 +71,6 @@
 @endsection
 
 @section('js')
-    
+    @include('consultations.typedemandes_js')
+    @include('consultations.statutautorisations_js')
 @endsection
