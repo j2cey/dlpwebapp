@@ -26,7 +26,7 @@
         <link href="{{asset('assets/plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css')}}" rel="stylesheet">
         <link href="{{asset('assets/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css')}}" rel="stylesheet">
         <link href="{{asset('assets/plugins/bootstrap-touchspin/css/jquery.bootstrap-touchspin.min.css')}}" rel="stylesheet" />
-        
+
         <!-- App css -->
 
         @yield('css')
@@ -101,7 +101,7 @@
         <script src="{{asset('assets/js/jquery.scrollTo.min.js')}}"></script>
 
         <!-- Chartjs -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js" charset="utf-8"></script>
+        <script src="{{asset('assets/js/Chart.min.js')}}"></script>
 
         <!--Morris Chart-->
         <!-- <script src= "{{asset('assets/plugins/morris/morris.min.js')}}"></script> -->
