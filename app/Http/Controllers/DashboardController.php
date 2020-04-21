@@ -87,40 +87,44 @@ class DashboardController extends Controller
         $heures_du_jour = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24];
 
         $requetes_dujour_chart = new RequeteChart;
-        $requetes_dujour_chart->labels($requetes_dujour_par_heure->keys());
-        $requetes_dujour_chart->dataset('Nombre Requetes', 'line', $requetes_dujour_par_heure->values())->backgroundColor('blue');
+        $requetes_dujour_chart->labels($heures_du_jour);
+        $requetes_dujour_chart->dataset('Nombre Requetes', 'line', $this->getRangedDataByDay($requetes_dujour_par_heure))->backgroundColor('blue');
 
         $consultations_dujour_chart = new RequeteChart;
-        $consultations_dujour_chart->labels($consultations_dujour_par_heure->keys());
-        $consultations_dujour_chart->dataset('Nombre Requetes', 'line', $consultations_dujour_par_heure->values())->backgroundColor('blue');
+        $consultations_dujour_chart->labels($heures_du_jour);
+        $consultations_dujour_chart->dataset('Nombre Requetes', 'line', $this->getRangedDataByDay($consultations_dujour_par_heure))->backgroundColor('blue');
 
         $requetesetconsultations_dujour_chart = new RequeteChart;
         $requetesetconsultations_dujour_chart->labels($heures_du_jour);
-        $requetesetconsultations_dujour_chart->dataset('Requetes', 'bar', $requetes_dujour_par_heure->values())->backgroundColor('green');
-        $requetesetconsultations_dujour_chart->dataset('Consultations', 'bar', $consultations_dujour_par_heure->values())->backgroundColor('orange');
+        $requetesetconsultations_dujour_chart->dataset('Requetes', 'line', $this->getRangedDataByDay($requetes_dujour_par_heure))
+          ->backgroundColor('rgba(105, 0, 132, .2)')
+          ->color('rgba(200, 99, 132, .7)');
+        $requetesetconsultations_dujour_chart->dataset('Consultations', 'line', $this->getRangedDataByDay($consultations_dujour_par_heure))
+          ->backgroundColor('rgba(0, 137, 132, .2)')
+          ->color('rgba(0, 10, 130, .7)');
 
         $autorisations_dujour_chart = new RequeteChart;
         $autorisations_dujour_chart->labels($heures_du_jour);
-        $autorisations_dujour_chart->dataset('Nombre Requetes', 'bar', $autorisations_dujour_par_heure->values())->backgroundColor('purple');
+        $autorisations_dujour_chart->dataset('Nombre Requetes', 'bar', $this->getRangedDataByDay($autorisations_dujour_par_heure))->backgroundColor('purple');
 
         $autorisationsalimentaires_dujour_chart = new RequeteChart;
         $autorisationsalimentaires_dujour_chart->labels($heures_du_jour);
-        $autorisationsalimentaires_dujour_chart->dataset('Nombre Requetes', 'bar', $autorisationsalimentaires_dujour_par_heure->values())->backgroundColor('green');
+        $autorisationsalimentaires_dujour_chart->dataset('Nombre Requetes', 'bar', $this->getRangedDataByDay($autorisationsalimentaires_dujour_par_heure))->backgroundColor('green');
 
         $autorisationssantes_dujour_chart = new RequeteChart;
         $autorisationssantes_dujour_chart->labels($heures_du_jour);
-        $autorisationssantes_dujour_chart->dataset('Nombre Requetes', 'bar', $autorisationssantes_dujour_par_heure->values())->backgroundColor('orange');
+        $autorisationssantes_dujour_chart->dataset('Nombre Requetes', 'bar', $this->getRangedDataByDay($autorisationssantes_dujour_par_heure))->backgroundColor('orange');
 
         $autorisationsurgences_dujour_chart = new RequeteChart;
         $autorisationsurgences_dujour_chart->labels($heures_du_jour);
-        $autorisationsurgences_dujour_chart->dataset('Nombre Requetes', 'bar', $autorisationsurgences_dujour_par_heure->values())->backgroundColor('red');
+        $autorisationsurgences_dujour_chart->dataset('Nombre Requetes', 'bar', $this->getRangedDataByDay($autorisationsurgences_dujour_par_heure))->backgroundColor('red');
 
         $autorisations_dujour_chart = new RequeteChart;
         $autorisations_dujour_chart->labels($heures_du_jour);
 
-        $autorisations_dujour_chart->dataset('Autorisations Alimentaires', 'bar', $autorisationsalimentaires_dujour_par_heure->values())->backgroundColor('green');
-        $autorisations_dujour_chart->dataset('Autorisations Santé', 'bar', $autorisationssantes_dujour_par_heure->values())->backgroundColor('orange');
-        $autorisations_dujour_chart->dataset('Autorisations Urgence', 'bar', $autorisationsurgences_dujour_par_heure->values())->backgroundColor('red');
+        $autorisations_dujour_chart->dataset('Alimentaire', 'bar', $this->getRangedDataByDay($autorisationsalimentaires_dujour_par_heure))->backgroundColor('orange');
+        $autorisations_dujour_chart->dataset('Santé', 'bar', $this->getRangedDataByDay($autorisationssantes_dujour_par_heure))->backgroundColor('green');
+        $autorisations_dujour_chart->dataset('Urgence', 'bar', $this->getRangedDataByDay($autorisationsurgences_dujour_par_heure))->backgroundColor('red');
 
         // Autorisations Recap Hebdo
         $alimentaire_hebdo = Autorisation::whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
@@ -155,6 +159,7 @@ class DashboardController extends Controller
 
         $tophebdodemandeurs_alim = DB::table("autorisations")
           ->select(DB::raw("COUNT(id) count, demandeur"))
+          ->whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
           ->where('type_demande_id', 1)
           ->groupBy("demandeur")
           ->havingRaw("COUNT(id) > 2")
@@ -162,12 +167,14 @@ class DashboardController extends Controller
         //dd($tophebdodemandeurs_alim->count());
         $tophebdodemandeurs_sante = DB::table("autorisations")
             ->select(DB::raw("COUNT(id) count, demandeur"))
+            ->whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
             ->where('type_demande_id', 2)
             ->groupBy("demandeur")
             ->havingRaw("COUNT(id) > 2")
             ->get();
         $tophebdodemandeurs_urg = DB::table("autorisations")
               ->select(DB::raw("COUNT(id) count, demandeur"))
+              ->whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
               ->where('type_demande_id', 3)
               ->groupBy("demandeur")
               ->havingRaw("COUNT(id) > 2")
@@ -180,5 +187,14 @@ class DashboardController extends Controller
             'totalconsultation_dujour','totaldemandesalimentaire_dujour','totaldemandessante_dujour','totaldemandesurgences_dujour',
             'alimentaire_hebdo','sante_hebdo','urgence_hebdo','autorisations_hebdo_chart',
             'tophebdodemandeurs_alim','tophebdodemandeurs_sante','tophebdodemandeurs_urg'));
+    }
+
+    private function getRangedDataByDay($data) {
+      $data_rst = [];
+      for ($i=1; $i < 25 ; $i++) {
+          $data_rst[] = isset($data[$i]) ? $data[$i] : 0;
+      }
+
+      return $data_rst;
     }
 }

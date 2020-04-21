@@ -4,7 +4,7 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-4">
-
+          <input class="form-control form-control-sm" type="search" name="dmeur" value="{{ $dmeur }}" placeholder="Demandeur">
         </div>
         <div class="col-4">
 

@@ -25,6 +25,7 @@ class ConsultationController extends Controller
         $statauts = null;
         $dt_deb = null;
         $dt_fin = null;
+        $dmeur = null;
 
         //if ($request->has('orderBy')) $orderBy = $request->query('orderBy');
         //if ($request->has('sortBy')) $sortBy = $request->query('sortBy');
@@ -36,8 +37,10 @@ class ConsultationController extends Controller
         if ($request->has('dt_deb')) $dt_deb = $request->query('dt_deb');
         if ($request->has('dt_fin')) $dt_fin = $request->query('dt_fin');
 
+        if ($request->has('dmeur')) $dmeur = $request->query('dmeur');
+
         //dd($request, $seltypds,$dt_deb,$dt_fin);
-        $listvalues = Requete::search($seltypds,$dt_deb,$dt_fin)->orderBy('id')->paginate($perPage);
+        $listvalues = Requete::search($dmeur,$seltypds,$dt_deb,$dt_fin)->orderBy('id')->paginate($perPage);
 
         if (is_null($seltypds)) {
           $seltypds = TypeDemande::where('name', 'x@gsf sgfscfs')->pluck('name', 'id');
@@ -52,7 +55,7 @@ class ConsultationController extends Controller
         }
 
         //dd($employes);
-        return view('consultations.index', compact('seltypds', 'statauts', 'dt_deb', 'dt_fin', 'listvalues', 'perPage'));
+        return view('consultations.index', compact('dmeur', 'seltypds', 'statauts', 'dt_deb', 'dt_fin', 'listvalues', 'perPage'));
     }
 
     public function selectmoretypedemandes(Request $request)

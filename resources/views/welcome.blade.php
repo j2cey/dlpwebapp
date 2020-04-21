@@ -35,7 +35,7 @@
           <div class="mini-stat clearfix bg-orange">
               <span class="mini-stat-icon"><i class="ti-shopping-cart-full"></i></span>
               <div class="mini-stat-info text-right text-light">
-                  <span class="counter text-white">{{ $totaldemandesalimentaire_dujour }}</span>Demandes Alimentaires du Jour
+                  <span class="counter text-white">{{ $totaldemandesalimentaire_dujour }}</span> <u>Demandes</u> <strong>Alimentaire</strong> du Jour
               </div>
           </div>
       </div>
@@ -43,7 +43,7 @@
           <div class="mini-stat clearfix bg-info">
               <span class="mini-stat-icon"><i class="ti-heart-broken"></i></span>
               <div class="mini-stat-info text-right text-light">
-                  <span class="counter text-white">{{ $totaldemandessante_dujour }}</span>Demandes Santé du Jour
+                  <span class="counter text-white">{{ $totaldemandessante_dujour }}</span><u>Demandes</u> <strong>Santé</strong> du Jour
               </div>
           </div>
       </div>
@@ -51,7 +51,7 @@
           <div class="mini-stat clearfix bg-success">
               <span class="mini-stat-icon"><i class="ti-alert"></i></span>
               <div class="mini-stat-info text-right text-light">
-                  <span class="counter text-white">{{ $totaldemandesurgences_dujour }}</span>Demandes Urgence du Jour
+                  <span class="counter text-white">{{ $totaldemandesurgences_dujour }}</span><u>Demandes</u> <strong>Urgence</strong> du Jour
               </div>
           </div>
       </div>
@@ -93,7 +93,7 @@
       <div class="card-group">
         <div class="card">
           <div class="card-body">
-            <h6 class="mt-0 m-b-15 header-title">Top Hebdo Demandes Sorties Alimentaire</h6>
+            <h6 class="mt-0 m-b-15 header-title">Top Hebdo Autorisations Sorties Alimentaire</h6>
 
                 <div class="table-responsive">
                   <table class="table table-hover mb-12">
@@ -122,7 +122,7 @@
         </div>
         <div class="card">
           <div class="card-body">
-            <h6 class="mt-0 m-b-15 header-title">Top Hebdo Demandes Sorties de Santé</h6>
+            <h6 class="mt-0 m-b-15 header-title">Top Hebdo Autorisations Sorties de Santé</h6>
 
               <div class="table-responsive">
                 <table class="table table-hover mb-12">
@@ -151,7 +151,7 @@
         </div>
         <div class="card">
           <div class="card-body">
-            <h6 class="mt-0 m-b-15 header-title">Top Hebdo Demandes Sorties Urgence</h6>
+            <h6 class="mt-0 m-b-15 header-title">Top Hebdo Autorisations Sorties Urgence</h6>
 
             <div class="table-responsive">
               <table class="table table-hover mb-12">
