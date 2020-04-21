@@ -135,7 +135,11 @@ class DashboardController extends Controller
 
         $autorisations_hebdo_chart = new RequeteChart;
         $autorisations_hebdo_chart->labels(['Alimentaire','Santé','Urgence']);
-        $autorisations_hebdo_chart->dataset('Autorisations Hebdo', 'pie', [$alimentaire_hebdo,$sante_hebdo,$urgence_hebdo])->backgroundColor('green');
+        $autorisations_hebdo_chart->dataset('Autorisations Hebdo', 'doughnut', [$alimentaire_hebdo,$sante_hebdo,$urgence_hebdo])->backgroundColor([
+          'rgb(255, 206, 86)',
+          'rgb(54, 162, 235)',
+          'rgb(255, 99, 132)',
+        ]);
 
 
         // $data = Autorisation::groupBy('type_demande_id')
@@ -149,10 +153,32 @@ class DashboardController extends Controller
         // $chart->labels($data->keys());
         // $chart->dataset('My dataset', 'line', $data->values());
 
+        $tophebdodemandeurs_alim = DB::table("autorisations")
+          ->select(DB::raw("COUNT(id) count, demandeur"))
+          ->where('type_demande_id', 1)
+          ->groupBy("demandeur")
+          ->havingRaw("COUNT(id) > 2")
+          ->get();
+        //dd($tophebdodemandeurs_alim->count());
+        $tophebdodemandeurs_sante = DB::table("autorisations")
+            ->select(DB::raw("COUNT(id) count, demandeur"))
+            ->where('type_demande_id', 2)
+            ->groupBy("demandeur")
+            ->havingRaw("COUNT(id) > 2")
+            ->get();
+        $tophebdodemandeurs_urg = DB::table("autorisations")
+              ->select(DB::raw("COUNT(id) count, demandeur"))
+              ->where('type_demande_id', 3)
+              ->groupBy("demandeur")
+              ->havingRaw("COUNT(id) > 2")
+              ->get();
+        //dd($tophebdodemandeurs);
+
         //return $reqs;
         return view('welcome',compact(
             'requetesetconsultations_dujour_chart','autorisations_dujour_chart','consultations_dujour_chart','autorisations_dujour_chart','autorisationsalimentaires_dujour_chart','autorisationssantes_dujour_chart','autorisationsurgences_dujour_chart',
             'totalconsultation_dujour','totaldemandesalimentaire_dujour','totaldemandessante_dujour','totaldemandesurgences_dujour',
-            'alimentaire_hebdo','sante_hebdo','urgence_hebdo','autorisations_hebdo_chart'));
+            'alimentaire_hebdo','sante_hebdo','urgence_hebdo','autorisations_hebdo_chart',
+            'tophebdodemandeurs_alim','tophebdodemandeurs_sante','tophebdodemandeurs_urg'));
     }
 }

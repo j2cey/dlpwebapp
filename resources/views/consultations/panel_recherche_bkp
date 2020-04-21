@@ -39,3 +39,46 @@
 </ul>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js" charset="utf-8"></script>
+
+
+
+
+
+
+<div class="card card-sec m-b-30">
+    <div class="card-body">
+        <h4 class="mt-0 m-b-15 header-title">Top Demandes Hebdo</h4>
+
+          <div class="table-responsive">
+            <table class="table table-hover mb-12">
+              <thead>
+                  <!-- <tr class="titles">
+                      <th>#</th>
+                      <th>Libelle</th>
+                      <th>Statut</th>
+                      <th>Articles</th>
+                      <th>Articles en Stock</th>
+                      <th>Articles en Affectation</th>
+                      <th>Articles en Bon Etat</th>
+                      <th>Articles en Panne</th>
+                  </tr> -->
+              </thead>
+              <tbody>
+                @forelse ($tophebdodemandeurs as $demandeurs)
+                      <tr>
+                        <td class="c-table__cell">{{ $demandeurs->demandeur }}</td>
+
+                        <td class="c-table__cell">
+                          @if($demandeurs->count <= 5)
+                            <span class="badge badge-success">{{ $demandeurs->count }}</span>
+                          @else
+                            <span class="badge badge-danger">{{ $demandeurs->count }}</span>
+                          @endif
+                        </td>
+                  @empty
+                  @endforelse
+              </tbody>
+            </table>
+      </div>
+    </div>
+</div>
