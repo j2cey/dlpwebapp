@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 
-Route::get('/', 'DashboardController@index')->middleware('auth');
+Route::get('/', 'DashboardController@index');
 
 Route::get('/generate/{nbrequetes}', 'DefaultController@generaterequest');
 

@@ -6,3 +6,34 @@
     @endforelse
   @endif
 </select>
+
+
+<ul class="list-inline widget-chart m-t-20 text-center">
+    <li>
+        <h4 class=""><b>5248</b></h4>
+        <p class="text-muted m-b-0">Marketplace</p>
+    </li>
+    <li>
+        <h4 class=""><b>321</b></h4>
+        <p class="text-muted m-b-0">Last week</p>
+    </li>
+    <li>
+        <h4 class=""><b>964</b></h4>
+        <p class="text-muted m-b-0">Last Month</p>
+    </li>
+</ul>
+
+<ul class="list-inline widget-chart m-t-20 text-center">
+    <li>
+        <h4 class=""><b>{{ $alimentaire_hebdo }}</b></h4>
+        <p class="text-muted m-b-0">Alimentaire</p>
+    </li>
+    <li>
+        <h4 class=""><b>{{ $sante_hebdo }}</b></h4>
+        <p class="text-muted m-b-0">Santé</p>
+    </li>
+    <li>
+        <h4 class=""><b>{{ $urgence_hebdo }}</b></h4>
+        <p class="text-muted m-b-0">Urgence</p>
+    </li>
+</ul>
