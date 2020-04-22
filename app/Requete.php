@@ -41,7 +41,7 @@ class Requete extends Model
         }
 
         if ( (!($dt_deb == null)) && (!($dt_fin == null)) ) {
-          $query->whereBetween('created_at', [$dt_deb,$dt_fin]);
+          $query->whereBetween('created_at', [Carbon::createFromFormat('d/m/Y', $dt_deb)->format('Y-m-d'),Carbon::createFromFormat('d/m/Y', $dt_fin)->format('Y-m-d')]);
         }
 
         if (!($dmeur == null)) {

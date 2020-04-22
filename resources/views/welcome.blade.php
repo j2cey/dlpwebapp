@@ -27,7 +27,7 @@
           <div class="mini-stat clearfix bg-white">
               <span class="mini-stat-icon"><i class="ti-harddrives"></i></span>
               <div class="mini-stat-info text-right text-light">
-                  <span class="counter text-white">{{ $totalconsultation_dujour }}</span>Consultations du Jour
+                  <span class="counter text-white">{{ $consultations_dujour_par_heure->sum() }}</span>Consultations du Jour
               </div>
           </div>
       </div>
@@ -35,7 +35,7 @@
           <div class="mini-stat clearfix bg-orange">
               <span class="mini-stat-icon"><i class="ti-shopping-cart-full"></i></span>
               <div class="mini-stat-info text-right text-light">
-                  <span class="counter text-white">{{ $totaldemandesalimentaire_dujour }}</span> <u>Demandes</u> <strong>Alimentaire</strong> du Jour
+                  <span class="counter text-white">{{ $autorisationsalimentaires_dujour_par_heure->sum() }}</span> <u>Autorisations</u> <strong>Alimentaire</strong> du Jour
               </div>
           </div>
       </div>
@@ -43,7 +43,7 @@
           <div class="mini-stat clearfix bg-info">
               <span class="mini-stat-icon"><i class="ti-heart-broken"></i></span>
               <div class="mini-stat-info text-right text-light">
-                  <span class="counter text-white">{{ $totaldemandessante_dujour }}</span><u>Demandes</u> <strong>Santé</strong> du Jour
+                  <span class="counter text-white">{{ $autorisationssantes_dujour_par_heure->sum() }}</span><u>Autorisations</u> <strong>Santé</strong> du Jour
               </div>
           </div>
       </div>
@@ -51,7 +51,7 @@
           <div class="mini-stat clearfix bg-success">
               <span class="mini-stat-icon"><i class="ti-alert"></i></span>
               <div class="mini-stat-info text-right text-light">
-                  <span class="counter text-white">{{ $totaldemandesurgences_dujour }}</span><u>Demandes</u> <strong>Urgence</strong> du Jour
+                  <span class="counter text-white">{{ $autorisationsurgences_dujour_par_heure->sum() }}</span><u>Autorisations</u> <strong>Urgence</strong> du Jour
               </div>
           </div>
       </div>
