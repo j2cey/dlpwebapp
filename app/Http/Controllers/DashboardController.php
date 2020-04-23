@@ -74,14 +74,14 @@ class DashboardController extends Controller
         $autorisations_dujour_chart = new RequeteChart;
         $autorisations_dujour_chart->labels($heures_du_jour);
 
-        $autorisations_dujour_chart->dataset('Alimentaire', 'line', $this->getRangedDataByDay($autorisationsalimentaires_dujour_par_heure))
-          ->backgroundColor('rgba(255, 206, 86, 0.2)')
+        $autorisations_dujour_chart->dataset('Alimentaire', 'bar', $this->getRangedDataByDay($autorisationsalimentaires_dujour_par_heure))
+          ->backgroundColor('rgba(255, 206, 86, 1)') // 0.2)')
           ->color('rgba(255, 206, 86, 1)');
-        $autorisations_dujour_chart->dataset('Santé', 'line', $this->getRangedDataByDay($autorisationssantes_dujour_par_heure))
-          ->backgroundColor('rgba(75, 192, 192, 0.2)')
+        $autorisations_dujour_chart->dataset('Santé', 'bar', $this->getRangedDataByDay($autorisationssantes_dujour_par_heure))
+          ->backgroundColor('rgba(75, 192, 192, 1)') // 0.2)')
           ->color('rgba(75, 192, 192, 1)');
-        $autorisations_dujour_chart->dataset('Urgence', 'line', $this->getRangedDataByDay($autorisationsurgences_dujour_par_heure))
-          ->backgroundColor('rgba(255, 99, 132, 0.2)')
+        $autorisations_dujour_chart->dataset('Urgence', 'bar', $this->getRangedDataByDay($autorisationsurgences_dujour_par_heure))
+          ->backgroundColor('rgba(255, 99, 132, 1)') // 0.2)')
           ->color('rgba(255,99,132,1)');
 
         // Autorisations Recap Hebdo
@@ -131,7 +131,7 @@ class DashboardController extends Controller
         return view('welcome',compact(
           'requetesetconsultations_dujour_chart','autorisations_dujour_chart','consultations_dujour_chart','autorisations_dujour_chart',
           'consultations_dujour_par_heure','autorisationsalimentaires_dujour_par_heure',
-          'autorisationssantes_dujour_par_heure','autorisationsurgences_dujour_par_heure',
+           'autorisationssantes_dujour_par_heure','autorisationsurgences_dujour_par_heure',
           'alimentaire_hebdo','sante_hebdo','urgence_hebdo','autorisations_hebdo_chart',
           'tophebdodemandeurs_alim','tophebdodemandeurs_sante','tophebdodemandeurs_urg'));
     }
