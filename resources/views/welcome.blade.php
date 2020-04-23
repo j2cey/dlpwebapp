@@ -61,10 +61,10 @@
     <div class="col-md-8">
         <div class="card card-sec m-b-30">
             <div class="card-body">
-                <h4 class="mt-0 header-title">Requêtes & Consultations de la Journée</h4>
+                <h4 class="mt-0 header-title">Répartition des Autorisations de la Journée</h4>
                 <div class="container">
-                  {!! $requetesetconsultations_dujour_chart->container() !!}
-                  {!! $requetesetconsultations_dujour_chart->script() !!}
+                  {!! $autorisations_dujour_chart->container() !!}
+                  {!! $autorisations_dujour_chart->script() !!}
                 </div>
             </div>
         </div>
@@ -73,11 +73,11 @@
     <div class="col-md-4">
         <div class="card card-sec m-b-30">
             <div class="card-body">
-                <h4 class="mt-0 header-title">Autorisations de la Journée</h4>
+                <h4 class="mt-0 header-title">Requêtes & Consultations de la Journée</h4>
 
                 <div class="container">
-                  {!! $autorisations_dujour_chart->container() !!}
-                  {!! $autorisations_dujour_chart->script() !!}
+                  {!! $requetesetconsultations_dujour_chart->container() !!}
+                  {!! $requetesetconsultations_dujour_chart->script() !!}
                 </div>
             </div>
         </div>
@@ -105,7 +105,7 @@
                               <td class="c-table__cell">{{ $demandeurs->demandeur }}</td>
 
                               <td class="c-table__cell">
-                                @if($demandeurs->count <= 5)
+                                @if($demandeurs->count <= 3)
                                   <span class="badge badge-success">{{ $demandeurs->count }}</span>
                                 @else
                                   <span class="badge badge-danger">{{ $demandeurs->count }}</span>
@@ -134,7 +134,7 @@
                             <td class="c-table__cell">{{ $demandeurs->demandeur }}</td>
 
                             <td class="c-table__cell">
-                              @if($demandeurs->count <= 5)
+                              @if($demandeurs->count <= 3)
                                 <span class="badge badge-success">{{ $demandeurs->count }}</span>
                               @else
                                 <span class="badge badge-danger">{{ $demandeurs->count }}</span>
@@ -163,7 +163,7 @@
                           <td class="c-table__cell">{{ $demandeurs->demandeur }}</td>
 
                           <td class="c-table__cell">
-                            @if($demandeurs->count <= 5)
+                            @if($demandeurs->count <= 3)
                               <span class="badge badge-success">{{ $demandeurs->count }}</span>
                             @else
                               <span class="badge badge-danger">{{ $demandeurs->count }}</span>

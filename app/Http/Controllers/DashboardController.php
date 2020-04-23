@@ -18,11 +18,6 @@ class DashboardController extends Controller
 {
     public function index() {
 
-        $totalconsultation_dujour = Requete::whereDate('created_at', Carbon::now()->toDateString())->where('type_demande_id', 4)->count();
-        $totaldemandesalimentaire_dujour = Requete::whereDate('created_at', Carbon::now()->toDateString())->where('type_demande_id', 1)->count();
-        $totaldemandessante_dujour = Requete::whereDate('created_at', Carbon::now()->toDateString())->where('type_demande_id', 2)->count();
-        $totaldemandesurgences_dujour = Requete::whereDate('created_at', Carbon::now()->toDateString())->where('type_demande_id', 3)->count();;
-
         $requetes_dujour_par_heure = DB::table('requetes')
           ->select(DB::raw('count(*) as count, HOUR(created_at) as hour'))
           ->whereDate('created_at', '=', Carbon::now()->toDateString())
@@ -69,10 +64,10 @@ class DashboardController extends Controller
 
         $requetesetconsultations_dujour_chart = new RequeteChart;
         $requetesetconsultations_dujour_chart->labels($heures_du_jour);
-        $requetesetconsultations_dujour_chart->dataset('Requetes', 'line', $this->getRangedDataByDay($requetes_dujour_par_heure))
+        $requetesetconsultations_dujour_chart->dataset('Requetes ('.$requetes_dujour_par_heure->sum().')', 'line', $this->getRangedDataByDay($requetes_dujour_par_heure))
           ->backgroundColor('rgba(105, 0, 132, .2)')
           ->color('rgba(200, 99, 132, .7)');
-        $requetesetconsultations_dujour_chart->dataset('Consultations', 'line', $this->getRangedDataByDay($consultations_dujour_par_heure))
+        $requetesetconsultations_dujour_chart->dataset('Consultations ('.$consultations_dujour_par_heure->sum().')', 'line', $this->getRangedDataByDay($consultations_dujour_par_heure))
           ->backgroundColor('rgba(0, 137, 132, .2)')
           ->color('rgba(0, 10, 130, .7)');
 
@@ -104,7 +99,7 @@ class DashboardController extends Controller
         $autorisations_hebdo_chart->labels(['Alimentaire','Santé','Urgence']);
         $autorisations_hebdo_chart->dataset('Autorisations Hebdo', 'doughnut', [$alimentaire_hebdo,$sante_hebdo,$urgence_hebdo])->backgroundColor([
           'rgb(255, 206, 86)',
-          'rgb(54, 162, 235)',
+          'rgb(75, 192, 192)',
           'rgb(255, 99, 132)',
         ]);
 
@@ -134,10 +129,11 @@ class DashboardController extends Controller
 
         //return $reqs;
         return view('welcome',compact(
-            'requetesetconsultations_dujour_chart','autorisations_dujour_chart','consultations_dujour_chart','autorisations_dujour_chart',
-            'consultations_dujour_par_heure','autorisationsalimentaires_dujour_par_heure','autorisationssantes_dujour_par_heure','autorisationsurgences_dujour_par_heure',
-            'alimentaire_hebdo','sante_hebdo','urgence_hebdo','autorisations_hebdo_chart',
-            'tophebdodemandeurs_alim','tophebdodemandeurs_sante','tophebdodemandeurs_urg'));
+          'requetesetconsultations_dujour_chart','autorisations_dujour_chart','consultations_dujour_chart','autorisations_dujour_chart',
+          'consultations_dujour_par_heure','autorisationsalimentaires_dujour_par_heure',
+          'autorisationssantes_dujour_par_heure','autorisationsurgences_dujour_par_heure',
+          'alimentaire_hebdo','sante_hebdo','urgence_hebdo','autorisations_hebdo_chart',
+          'tophebdodemandeurs_alim','tophebdodemandeurs_sante','tophebdodemandeurs_urg'));
     }
 
     private function getRangedDataByDay($data) {
