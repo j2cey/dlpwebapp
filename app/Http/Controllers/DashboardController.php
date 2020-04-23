@@ -79,9 +79,15 @@ class DashboardController extends Controller
         $autorisations_dujour_chart = new RequeteChart;
         $autorisations_dujour_chart->labels($heures_du_jour);
 
-        $autorisations_dujour_chart->dataset('Alimentaire', 'bar', $this->getRangedDataByDay($autorisationsalimentaires_dujour_par_heure))->backgroundColor('orange');
-        $autorisations_dujour_chart->dataset('Santé', 'bar', $this->getRangedDataByDay($autorisationssantes_dujour_par_heure))->backgroundColor('green');
-        $autorisations_dujour_chart->dataset('Urgence', 'bar', $this->getRangedDataByDay($autorisationsurgences_dujour_par_heure))->backgroundColor('red');
+        $autorisations_dujour_chart->dataset('Alimentaire', 'line', $this->getRangedDataByDay($autorisationsalimentaires_dujour_par_heure))
+          ->backgroundColor('rgba(255, 206, 86, 0.2)')
+          ->color('rgba(255, 206, 86, 1)');
+        $autorisations_dujour_chart->dataset('Santé', 'line', $this->getRangedDataByDay($autorisationssantes_dujour_par_heure))
+          ->backgroundColor('rgba(75, 192, 192, 0.2)')
+          ->color('rgba(75, 192, 192, 1)');
+        $autorisations_dujour_chart->dataset('Urgence', 'line', $this->getRangedDataByDay($autorisationsurgences_dujour_par_heure))
+          ->backgroundColor('rgba(255, 99, 132, 0.2)')
+          ->color('rgba(255,99,132,1)');
 
         // Autorisations Recap Hebdo
         $alimentaire_hebdo = Autorisation::whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
