@@ -72,5 +72,5 @@
 
 @section('js')
     @include('consultations.typedemandes_js')
-    @include('consultations.statutautorisations_js')
+    @include('consultations.statutrequetes_js')
 @endsection

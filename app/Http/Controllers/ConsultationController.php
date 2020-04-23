@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Requete;
 use App\TypeDemande;
+use App\TypeReponse;
 use App\StatutAutorisation;
 
 class ConsultationController extends Controller
@@ -22,7 +23,7 @@ class ConsultationController extends Controller
         $orderBy = 'asc';
         $perPage = 50;
         $seltypds = null;
-        $statauts = null;
+        $statreqs = null;
         $dt_deb = null;
         $dt_fin = null;
         $dmeur = null;
@@ -32,7 +33,7 @@ class ConsultationController extends Controller
         if ($request->has('perPage')) $perPage = $request->query('perPage');
 
         if ($request->has('seltypds')) $seltypds = $request->query('seltypds');
-        if ($request->has('statauts')) $statauts = $request->query('statauts');
+        if ($request->has('statreqs')) $statreqs = $request->query('statreqs');
 
         if ($request->has('dt_deb')) $dt_deb = $request->query('dt_deb');
         if ($request->has('dt_fin')) $dt_fin = $request->query('dt_fin');
@@ -40,7 +41,9 @@ class ConsultationController extends Controller
         if ($request->has('dmeur')) $dmeur = $request->query('dmeur');
 
         //dd($request, $seltypds,$dt_deb,$dt_fin);
-        $listvalues = Requete::search($dmeur,$seltypds,$dt_deb,$dt_fin)->orderBy('id')->paginate($perPage);
+        $listvalues = Requete::search($dmeur,$statreqs,$seltypds,$dt_deb,$dt_fin)
+              ->with('autorisation')->with('type_demande')->with('type_reponse')
+              ->orderBy('id')->paginate($perPage);
 
         if (is_null($seltypds)) {
           $seltypds = TypeDemande::where('name', 'x@gsf sgfscfs')->pluck('name', 'id');
@@ -48,14 +51,14 @@ class ConsultationController extends Controller
           $seltypds = TypeDemande::whereIn('id', $seltypds)->pluck('name', 'id');
         }
 
-        if (is_null($statauts)) {
-          $statauts = StatutAutorisation::where('name', 'x@gsf sgfscfs')->pluck('name', 'code');
+        if (is_null($statreqs)) {
+          $statreqs = TypeReponse::where('name', 'x@gsf sgfscfs')->pluck('name', 'code');
         } else {
-          $statauts = StatutAutorisation::whereIn('code', $statauts)->pluck('name', 'code');
+          $statreqs = TypeReponse::whereIn('code', $statreqs)->pluck('name', 'code');
         }
 
         //dd($employes);
-        return view('consultations.index', compact('dmeur', 'seltypds', 'statauts', 'dt_deb', 'dt_fin', 'listvalues', 'perPage'));
+        return view('consultations.index', compact('dmeur', 'seltypds', 'statreqs', 'dt_deb', 'dt_fin', 'listvalues', 'perPage'));
     }
 
     public function selectmoretypedemandes(Request $request)
@@ -66,10 +69,10 @@ class ConsultationController extends Controller
         return response()->json(['items' => $data->toArray()['data'], 'pagination' => $data->nextPageUrl() ? true : false]);
     }
 
-    public function selectmorestatutautorisations(Request $request)
+    public function selectmorestatutrequetes(Request $request)
     {
         $search = $request->get('search');
-        $data = StatutAutorisation::select(['id', 'name'])
+        $data = TypeReponse::select(['id', 'name'])
           ->where('name', 'like', '%' . $search . '%')->orderBy('name')->paginate(5);
         return response()->json(['items' => $data->toArray()['data'], 'pagination' => $data->nextPageUrl() ? true : false]);
     }

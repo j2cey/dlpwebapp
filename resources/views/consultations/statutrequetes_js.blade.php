@@ -1,9 +1,9 @@
 <script src="{{ asset('assets/js/select2.min.js') }}"></script>
 <script>
     $(document).ready(function () {
-        $('#statutautorisation').select2({
+        $('#statutrequete').select2({
             ajax: {
-                url: '{{'/selectmorestatutautorisations'}}',
+                url: '{{'/selectmorestatutrequetes'}}',
                 data: function (params) {
                     return {
                         search: params.term,
@@ -28,7 +28,7 @@
                 cache: true,
                 delay: 250
             },
-            placeholder: 'Statut Autorisation',
+            placeholder: 'Statut Requêtes',
 //                minimumInputLength: 2,
             multiple: true
         });

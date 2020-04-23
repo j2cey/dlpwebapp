@@ -90,7 +90,8 @@ class DefaultController extends Controller
               $type_reponse = TypeReponse::where('code', 2)->get()->first();
               $msg_result = $autorisation_en_cours->type_demande->getMessageConsultation($autorisation_en_cours->date_debut, $autorisation_en_cours->date_fin);
           }
-          $curr_requete->Finalize($type_reponse->id); //$curr_requete->Finalize($type_demande->code);
+          //dd($autorisation_en_cours,$autorisation_en_cours->type_demande);
+          $curr_requete->Finalize($type_reponse->id);
       } elseif ($type_demande->code == "1" || $type_demande->code == "2" || $type_demande->code == "3") {
 
           $autorisation_en_cours = Autorisation::where('demandeur', $phonenum)->where('is_active', 1)->first();
@@ -138,8 +139,6 @@ class DefaultController extends Controller
                       ]);
                   } else {
                       // Heure debut demandes non-atteinte
-                      // $msg_result = "Désolé. Les demandes d autorisation ne sont pas déjà disponibles";
-                      // $curr_requete->Finalize(-3);
                       $type_reponse = TypeReponse::where('code', -4)->get()->first();
                       $msg_result = $type_reponse->msg_reponse;
                       $curr_requete->Finalize($type_reponse->id);
@@ -148,18 +147,16 @@ class DefaultController extends Controller
           } else {
               // Le demandeur a deja une autorisation non echue
               $type_reponse = TypeReponse::where('code', -3)->get()->first();
-              $msg_result = $type_demande->getMessageConsultation($autorisation_en_cours->date_debut, $autorisation_en_cours->date_fin);
+              $msg_result = $autorisation_en_cours->type_demande->getMessageConsultation($autorisation_en_cours->date_debut, $autorisation_en_cours->date_fin);
               $curr_requete->Finalize($type_reponse->id);
           }
       } else {
           // Bad Requete
-          // $msg_result = $type_demande->getMessageSucces("","");
-          // $curr_requete->Finalize(-1);
           $type_reponse = TypeReponse::where('code', -2)->get()->first();
           $msg_result = $type_reponse->msg_reponse;
           $curr_requete->Finalize($type_reponse->id);
       }
-
+      //dd($curr_requete,$msg_result);
       return response()->json([
         'message' => $msg_result
       ]);

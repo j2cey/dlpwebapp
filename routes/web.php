@@ -26,7 +26,7 @@ Route::get('/{reqtype}/{phonenum}/', 'DefaultController@defaultrequest');
 Auth::routes();
 
 Route::get('/selectmoretypedemandes', 'ConsultationController@selectmoretypedemandes')->middleware('auth');
-Route::get('/selectmorestatutautorisations', 'ConsultationController@selectmorestatutautorisations')->middleware('auth');
+Route::get('/selectmorestatutrequetes', 'ConsultationController@selectmorestatutrequetes')->middleware('auth');
 
 Route::get('/home', 'HomeController@index')->name('home');
 

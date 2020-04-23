@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Autorisation;
 
 class Requete extends Model
 {
@@ -33,8 +34,8 @@ class Requete extends Model
 
     }
 
-    public function scopeSearch($query,$dmeur,$seltypds,$dt_deb,$dt_fin) {
-        if ($seltypds == null && ($dt_deb == null || $dt_fin == null) && $dmeur == null) return $query;
+    public function scopeSearch($query,$dmeur,$statreqs,$seltypds,$dt_deb,$dt_fin) {
+        if ($seltypds == null && ($dt_deb == null || $dt_fin == null) && $dmeur == null && $statreqs == null) return $query;
 
         if (!($seltypds == null)) {
           $query->whereIn('type_demande_id', $seltypds);
@@ -48,6 +49,38 @@ class Requete extends Model
           $query->where('phonenum', $dmeur);
         }
 
+        if (!($statreqs == null)) {
+          $query->whereIn('type_reponse_id', $statreqs);
+        }
+
         return $query;
+    }
+
+    public function old() {
+      if (!($statauts == null)) {
+        $nextWhere = "where";
+        $nextIn = "whereIn";
+        if (in_array(1, $statauts) && in_array(2, $statauts) && (! in_array(3, $statauts))) {
+          // A autorisation active ou inactive
+          $query->where('type_reponse_id', 1);
+
+          $nextWhere = "orWhere";
+          $nextIn = "orWhereIn";
+        } elseif (in_array(1, $statauts) || in_array(2, $statauts) && (in_array(3, $statauts))) {
+
+        }
+        if (in_array(2, $statauts)) {
+          // A autorisation echue
+          $req_ids = Autorisation::where('is_active', 0)->get()->pluck('requete_id')->toArray();
+          $query->$nextIn('id', $req_ids);
+
+          $nextWhere = "orWhere";
+          $nextIn = "orWhereIn";
+        }
+        if (in_array(3, $statauts)) {
+          // N'a aucune autorisation
+          $query->$nextWhere('type_reponse_id', '<>', 1);
+        }
+      }
     }
 }

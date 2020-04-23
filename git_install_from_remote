@@ -1,0 +1,33 @@
+git clone https://github.com/j2cey/dlpwebapp.git
+
+sudo apt install php-pecl
+sudo apt install php-dev libmcrypt-dev php-pear
+sudo pecl channel-update pecl.php.net
+sudo pecl install mcrypt-1.0.1
+
+sudo nano /etc/php/7.2/cli/php/ini
+sudo nano /etc/php/7.2/apache2/php/ini
+
+-- Composer
+curl -sS https://getcomposer.org.installer | php
+sudo mv composer.phar /usr/local/bin/composer
+sudo chmod +x /usr/local/bin/composer
+
+
+-- Update type_reponse_id
+UPDATE requetes SET type_reponse_id=9 WHERE type_reponse_id=8
+UPDATE requetes SET type_reponse_id=8 WHERE type_reponse_id=7
+UPDATE requetes SET type_reponse_id=7 WHERE type_reponse_id=6
+UPDATE requetes SET type_reponse_id=6 WHERE type_reponse_id=5
+UPDATE requetes SET type_reponse_id=5 WHERE type_reponse_id=4
+
+-- > Après Faire correspondre les codes dans la table type_reponses
+
+-- Update des requetes dont autorisation échue
+UPDATE requetes
+        INNER JOIN
+    autorisations ON requetes.id = autorisations.requete_id  AND autorisations.is_active = 0
+SET
+    type_reponse_id = 3
+
+-- > En suite, modifier la commande du cron

@@ -16,6 +16,7 @@ class TypeDemande extends Model
     }
 
     public function getMessage($msg, $date_deb = null, $date_fin = null) {
+
         if (!(is_null($date_deb))) {
           $date_deb_c = Carbon::parse($date_deb);
           //$time_deb = (explode(" ", $date_deb))[1];
@@ -26,6 +27,7 @@ class TypeDemande extends Model
           //$time_fin = (explode(" ", $date_fin))[1];
           $msg = str_replace("DATEFIN", $date_fin_c->translatedFormat('jS F Y \\à H:i'), $msg);
         }
+        
         return $msg;
     }
 }
