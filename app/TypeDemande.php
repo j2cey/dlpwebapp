@@ -7,6 +7,11 @@ use Carbon\Carbon;
 
 class TypeDemande extends Model
 {
+    public function autorisations()
+    {
+        return $this->hasMany('App\Autorisation');
+    }
+    
     public function getMessageSucces($date_deb = null, $date_fin = null) {
         return $this->getMessage($this->msg_succes, $date_deb, $date_fin);
     }
@@ -27,7 +32,7 @@ class TypeDemande extends Model
           //$time_fin = (explode(" ", $date_fin))[1];
           $msg = str_replace("DATEFIN", $date_fin_c->translatedFormat('jS F Y \\à H:i'), $msg);
         }
-        
+
         return $msg;
     }
 }

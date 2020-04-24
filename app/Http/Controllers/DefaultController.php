@@ -80,7 +80,7 @@ class DefaultController extends Controller
 
       if ($type_demande->code == "4") {
           // Consultation
-          $autorisation_en_cours = Autorisation::where('demandeur', $phonenum)->where('is_active', 1)->first();
+          $autorisation_en_cours = Autorisation::where('demandeur', $phonenum)->where('is_active', 1)->with('type_demande')->first();
 
           if (is_null($autorisation_en_cours)) {
               //$msg_result = "Aucune Autorisation En Cours";
@@ -94,7 +94,7 @@ class DefaultController extends Controller
           $curr_requete->Finalize($type_reponse->id);
       } elseif ($type_demande->code == "1" || $type_demande->code == "2" || $type_demande->code == "3") {
 
-          $autorisation_en_cours = Autorisation::where('demandeur', $phonenum)->where('is_active', 1)->first();
+          $autorisation_en_cours = Autorisation::where('demandeur', $phonenum)->where('is_active', 1)->with('type_demande')->first();
 
           if (is_null($autorisation_en_cours)) {
               $autorisation_hebdo_obtenues = Autorisation::whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
