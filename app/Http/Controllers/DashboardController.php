@@ -19,6 +19,8 @@ class DashboardController extends Controller
 {
     public function index() {
 
+        Carbon::setLocale('fr');
+
         $type_demande_alimentaire = TypeDemande::where('code', '1')->first();
         $type_demande_sante = TypeDemande::where('code', '2')->first();
         $type_demande_urgence = TypeDemande::where('code', '3')->first();
@@ -90,13 +92,13 @@ class DashboardController extends Controller
           ->color('rgba(255,99,132,1)');
 
         // Autorisations Recap Hebdo
-        $alimentaire_hebdo = Autorisation::whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+        $alimentaire_hebdo = Autorisation::whereBetween('date_debut', [Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek()])
           ->where('type_demande_id', 1)
           ->count();
-        $sante_hebdo = Autorisation::whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+        $sante_hebdo = Autorisation::whereBetween('date_debut', [Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek()])
           ->where('type_demande_id', 2)
           ->count();
-        $urgence_hebdo = Autorisation::whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+        $urgence_hebdo = Autorisation::whereBetween('date_debut', [Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek()])
           ->where('type_demande_id', 3)
           ->count();
 
@@ -110,7 +112,7 @@ class DashboardController extends Controller
 
         $tophebdodemandeurs_alim = DB::table("autorisations")
           ->select(DB::raw("COUNT(id) count, demandeur"))
-          ->whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+          ->whereBetween('date_debut', [Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek()])
           ->where('type_demande_id', 1)
           ->groupBy("demandeur")
           ->havingRaw("COUNT(id) > 2")
@@ -118,14 +120,14 @@ class DashboardController extends Controller
         //dd($tophebdodemandeurs_alim->count());
         $tophebdodemandeurs_sante = DB::table("autorisations")
             ->select(DB::raw("COUNT(id) count, demandeur"))
-            ->whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+            ->whereBetween('date_debut', [Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek()])
             ->where('type_demande_id', 2)
             ->groupBy("demandeur")
             ->havingRaw("COUNT(id) > 2")
             ->get();
         $tophebdodemandeurs_urg = DB::table("autorisations")
               ->select(DB::raw("COUNT(id) count, demandeur"))
-              ->whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+              ->whereBetween('date_debut', [Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek()])
               ->where('type_demande_id', 3)
               ->groupBy("demandeur")
               ->havingRaw("COUNT(id) > 2")
@@ -136,7 +138,7 @@ class DashboardController extends Controller
         $resumhebdodemandes_autorisationaccordee = DB::table("requetes")
               ->select(DB::raw("COUNT(requetes.id) count, type_demandes.name typedemande"))
               ->join('type_demandes', 'type_demandes.id', '=', 'requetes.type_demande_id')
-              ->whereBetween('requetes.created_at', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+              ->whereBetween('requetes.created_at', [Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek()])
               ->whereIn('requetes.type_reponse_id', [1,3])
               ->groupBy("typedemande")
               ->pluck('count','typedemande');
@@ -144,7 +146,7 @@ class DashboardController extends Controller
         $resumhebdodemandes_autorisationencours = DB::table("requetes")
               ->select(DB::raw("COUNT(requetes.id) count, type_demandes.name typedemande"))
               ->join('type_demandes', 'type_demandes.id', '=', 'requetes.type_demande_id')
-              ->whereBetween('requetes.created_at', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+              ->whereBetween('requetes.created_at', [Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek()])
               ->where('requetes.type_reponse_id', 6)
               ->groupBy("typedemande")
               ->pluck('count','typedemande');
@@ -152,7 +154,7 @@ class DashboardController extends Controller
         $resumhebdodemandes_demandehorsperiode = DB::table("requetes")
               ->select(DB::raw("COUNT(requetes.id) count, type_demandes.name typedemande"))
               ->join('type_demandes', 'type_demandes.id', '=', 'requetes.type_demande_id')
-              ->whereBetween('requetes.created_at', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+              ->whereBetween('requetes.created_at', [Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek()])
               ->where('requetes.type_reponse_id', 7)
               ->groupBy("typedemande")
               ->pluck('count','typedemande');
@@ -160,7 +162,7 @@ class DashboardController extends Controller
         $resumhebdodemandes_plafondhebdoatteint = DB::table("requetes")
               ->select(DB::raw("COUNT(requetes.id) count, type_demandes.name typedemande"))
               ->join('type_demandes', 'type_demandes.id', '=', 'requetes.type_demande_id')
-              ->whereBetween('requetes.created_at', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+              ->whereBetween('requetes.created_at', [Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek()])
               ->where('requetes.type_reponse_id', 8)
               ->groupBy("typedemande")
               ->pluck('count','typedemande');

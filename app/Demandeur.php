@@ -40,7 +40,7 @@ class Demandeur extends Model
 
     public function plafondAutorisationsHebdoAtteint($code, $plafond) {
       $nb_autorisations_de_la_semaine = $this->autorisations()
-        ->whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+        ->whereBetween('date_debut', [Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek()])
         ->where('code', $code)
         ->count();
       return ($nb_autorisations_de_la_semaine >= $plafond);

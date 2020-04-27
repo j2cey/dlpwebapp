@@ -82,7 +82,7 @@ class DefaultController extends Controller
       // $startOfWeek = $date_debut->startOfWeek();
       // $endOfWeek = $date_debut->endOfWeek();
 
-      dd([$date_debut->startOfWeek(),Carbon::parse('last monday')->startOfDay()->addHours(1),Carbon::parse('next sunday')->endOfDay()->addHours(1)]);
+      //dd([Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek(),Carbon::parse('last monday')->startOfDay()->addHours(1),Carbon::parse('next sunday')->endOfDay()->addHours(1)]);
 
       if ($type_demande->code == "4") {
           // Consultation
@@ -104,7 +104,7 @@ class DefaultController extends Controller
           $autorisation_en_cours = Autorisation::where('demandeur', $phonenum)->where('is_active', 1)->with('type_demande')->first();
 
           if (is_null($autorisation_en_cours)) {
-              $autorisation_hebdo_obtenues = Autorisation::whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+              $autorisation_hebdo_obtenues = Autorisation::whereBetween('date_debut', [Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek()])
                 ->where('type_demande_id', $type_demande->id)
                 ->where('demandeur', $phonenum)
                 ->count();
