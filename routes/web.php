@@ -19,15 +19,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', 'DashboardController@index')->middleware('auth');
 
+Auth::routes();
+
+Route::resource('consultations','ConsultationController')->middleware('auth');
+
 Route::get('/generate/{nbrequetes}', 'DefaultController@generaterequest');
 
 Route::get('/{reqtype}/{phonenum}/', 'DefaultController@defaultrequest');
-
-Auth::routes();
 
 Route::get('/selectmoretypedemandes', 'ConsultationController@selectmoretypedemandes')->middleware('auth');
 Route::get('/selectmorestatutrequetes', 'ConsultationController@selectmorestatutrequetes')->middleware('auth');
 
 Route::get('/home', 'HomeController@index')->name('home');
-
-Route::resource('consultations','ConsultationController')->middleware('auth');

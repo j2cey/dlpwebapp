@@ -13,7 +13,7 @@ class TypeDemandesSeeder extends Seeder
      public function run()
      {
         $this->createNew("1", "Deplacement Alimentaire", 3, 3, "Votre demande de déplacement Alimentaire du DATEDEBUT au DATEFIN à été validée avec succès.", "Vous avez une autorisation de déplacement Alimentaire du DATEDEBUT au DATEFIN en cours.");
-        $this->createNew("2", "Deplacement Sante", 2, 2, "Votre demande de déplacement de Santé du DATEDEBUT au DATEFIN à été validée avec succès.", "Vous avez une autorisation de déplacement Alimentaire du DATEDEBUT au DATEFIN en cours.");
+        $this->createNew("2", "Deplacement Sante", 2, 2, "Votre demande de déplacement de Santé du DATEDEBUT au DATEFIN à été validée avec succès.", "Vous avez une autorisation de déplacement de Santé du DATEDEBUT au DATEFIN en cours.");
         $this->createNew("3", "Deplacement Urgence", 3, 7, "Votre demande de déplacement d Urgence du DATEDEBUT au DATEFIN à été validée avec succès.", "Vous avez une autorisation de déplacement d Urgence du DATEDEBUT au DATEFIN en cours.");
         $this->createNew("4", "Consultation", 0, 0, " ", " ");
         $this->createNew("5", "Mauvaise Requete", 0, 0, "Mauvaise Requete", "Mauvaise Requete");

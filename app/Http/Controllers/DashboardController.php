@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Redirect;
 use DB;
 use Charts;
 use App\Charts\RequeteChart;
+use App\TypeDemande;
 
 use App\Requete;
 use App\Demandeur;
@@ -17,6 +18,10 @@ use Carbon\Carbon;
 class DashboardController extends Controller
 {
     public function index() {
+
+        $type_demande_alimentaire = TypeDemande::where('code', '1')->first();
+        $type_demande_sante = TypeDemande::where('code', '2')->first();
+        $type_demande_urgence = TypeDemande::where('code', '3')->first();
 
         $requetes_dujour_par_heure = DB::table('requetes')
           ->select(DB::raw('count(*) as count, HOUR(created_at) as hour'))
@@ -89,11 +94,11 @@ class DashboardController extends Controller
           ->where('type_demande_id', 1)
           ->count();
         $sante_hebdo = Autorisation::whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
-            ->where('type_demande_id', 2)
-            ->count();
+          ->where('type_demande_id', 2)
+          ->count();
         $urgence_hebdo = Autorisation::whereBetween('date_debut', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
-                ->where('type_demande_id', 3)
-                ->count();
+          ->where('type_demande_id', 3)
+          ->count();
 
         $autorisations_hebdo_chart = new RequeteChart;
         $autorisations_hebdo_chart->labels(['Alimentaire','Santé','Urgence']);
@@ -125,7 +130,87 @@ class DashboardController extends Controller
               ->groupBy("demandeur")
               ->havingRaw("COUNT(id) > 2")
               ->get();
-        //dd($tophebdodemandeurs);
+
+        // Autorisation Accordée - 1
+        // Autorisation Accordée (échue) - 3
+        $resumhebdodemandes_autorisationaccordee = DB::table("requetes")
+              ->select(DB::raw("COUNT(requetes.id) count, type_demandes.name typedemande"))
+              ->join('type_demandes', 'type_demandes.id', '=', 'requetes.type_demande_id')
+              ->whereBetween('requetes.created_at', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+              ->whereIn('requetes.type_reponse_id', [1,3])
+              ->groupBy("typedemande")
+              ->pluck('count','typedemande');
+        // Echec Demande - Autorisation En Cours
+        $resumhebdodemandes_autorisationencours = DB::table("requetes")
+              ->select(DB::raw("COUNT(requetes.id) count, type_demandes.name typedemande"))
+              ->join('type_demandes', 'type_demandes.id', '=', 'requetes.type_demande_id')
+              ->whereBetween('requetes.created_at', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+              ->where('requetes.type_reponse_id', 6)
+              ->groupBy("typedemande")
+              ->pluck('count','typedemande');
+        // Demande Hors Periode Autorisée
+        $resumhebdodemandes_demandehorsperiode = DB::table("requetes")
+              ->select(DB::raw("COUNT(requetes.id) count, type_demandes.name typedemande"))
+              ->join('type_demandes', 'type_demandes.id', '=', 'requetes.type_demande_id')
+              ->whereBetween('requetes.created_at', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+              ->where('requetes.type_reponse_id', 7)
+              ->groupBy("typedemande")
+              ->pluck('count','typedemande');
+        // Plafond Hebdomadaire atteint
+        $resumhebdodemandes_plafondhebdoatteint = DB::table("requetes")
+              ->select(DB::raw("COUNT(requetes.id) count, type_demandes.name typedemande"))
+              ->join('type_demandes', 'type_demandes.id', '=', 'requetes.type_demande_id')
+              ->whereBetween('requetes.created_at', [Carbon::parse('last monday')->startOfDay(),Carbon::parse('next sunday')->endOfDay()])
+              ->where('requetes.type_reponse_id', 8)
+              ->groupBy("typedemande")
+              ->pluck('count','typedemande');
+
+        $resultatshebdo_demandealim = $this->getResultsHebdoForTypeDemande($resumhebdodemandes_autorisationaccordee,$resumhebdodemandes_autorisationencours,$resumhebdodemandes_demandehorsperiode,$resumhebdodemandes_plafondhebdoatteint,$type_demande_alimentaire);
+        $resultatshebdo_demandesante = $this->getResultsHebdoForTypeDemande($resumhebdodemandes_autorisationaccordee,$resumhebdodemandes_autorisationencours,$resumhebdodemandes_demandehorsperiode,$resumhebdodemandes_plafondhebdoatteint,$type_demande_sante);
+        $resultatshebdo_demandeurg = $this->getResultsHebdoForTypeDemande($resumhebdodemandes_autorisationaccordee,$resumhebdodemandes_autorisationencours,$resumhebdodemandes_demandehorsperiode,$resumhebdodemandes_plafondhebdoatteint,$type_demande_urgence);
+
+        // dd($resumhebdodemandes_autorisationaccordee,
+        //   $resumhebdodemandes_autorisationencours,
+        //   $resumhebdodemandes_demandehorsperiode,
+        //   $resumhebdodemandes_plafondhebdoatteint,
+        //   $resultatshebdo_demandealim,
+        //   $resultatshebdo_demandesante,
+        //   $resultatshebdo_demandeurg);
+
+
+        $resumhebdodemandes_parresultat_chart = new RequeteChart;
+        $resumhebdodemandes_parresultat_chart->labels(['Autorisation Accordée','Autorisation En Cours','Demande Hors Periode','Plafond Hebdo atteint']);
+        // $resumhebdodemandes_parresultat_chart->options([
+        //     'ticks' => [
+        //         'suggestedMin' => 0,
+        //         'suggestedMax' => 50000,
+        //     ]
+        // ]);
+
+        $resumhebdodemandes_parresultat_chart->dataset('Alimentaire', 'radar', $resultatshebdo_demandealim)
+          ->backgroundColor('rgba(255, 206, 86, .2)') // 0.2)')
+          ->color('rgba(255, 206, 86, .7)');
+        $resumhebdodemandes_parresultat_chart->dataset('Santé', 'radar', $resultatshebdo_demandesante)
+          ->backgroundColor('rgba(75, 192, 192, .2)') // 0.2)')
+          ->color('rgba(75, 192, 192, .7)');
+        $resumhebdodemandes_parresultat_chart->dataset('Urgence', 'radar', $resultatshebdo_demandeurg)
+          ->backgroundColor('rgba(255, 99, 132, .2)') // 0.2)')
+          ->color('rgba(255,99,132,.7)');
+
+          $resumhebdo_resultats_chart = new RequeteChart;
+          $resumhebdo_resultats_chart->labels(['Autorisation Accordée','Autorisation En Cours','Demande Hors Periode','Plafond Hebdo atteint']);
+          $resumhebdo_resultats_chart->dataset('Résultats Hebdo', 'polarArea', [$resumhebdodemandes_autorisationaccordee->sum(),$resumhebdodemandes_autorisationencours->sum(),$resumhebdodemandes_demandehorsperiode->sum(),$resumhebdodemandes_plafondhebdoatteint->sum()])
+            ->backgroundColor([
+            'rgb(255, 206, 86,.2)',
+            'rgb(75, 192, 192,.2)',
+            'rgb(255, 99, 132,.2)',
+            'rgba(0, 10, 130,.2)'])
+            ->color([
+            'rgb(255, 206, 86,.7)',
+            'rgb(75, 192, 192,.7)',
+            'rgb(255, 99, 132,.7)',
+            'rgba(0, 10, 130,.7)']
+        );
 
         //return $reqs;
         return view('welcome',compact(
@@ -133,7 +218,8 @@ class DashboardController extends Controller
           'consultations_dujour_par_heure','autorisationsalimentaires_dujour_par_heure',
            'autorisationssantes_dujour_par_heure','autorisationsurgences_dujour_par_heure',
           'alimentaire_hebdo','sante_hebdo','urgence_hebdo','autorisations_hebdo_chart',
-          'tophebdodemandeurs_alim','tophebdodemandeurs_sante','tophebdodemandeurs_urg'));
+          'tophebdodemandeurs_alim','tophebdodemandeurs_sante','tophebdodemandeurs_urg',
+          'resumhebdodemandes_parresultat_chart','resumhebdo_resultats_chart'));
     }
 
     private function getRangedDataByDay($data) {
@@ -143,5 +229,14 @@ class DashboardController extends Controller
       }
 
       return $data_rst;
+    }
+
+    private function getResultsHebdoForTypeDemande($resumhebdo_autorisationaccordee,$resumhebdo_autorisationencours,$resumhebdo_demandehorsperiode,$resumhebdo__plafondhebdoatteint,$type_demande) {
+      return [
+        isset($resumhebdo_autorisationaccordee[$type_demande->name]) ? $resumhebdo_autorisationaccordee[$type_demande->name] : 0,
+        isset($resumhebdo_autorisationencours[$type_demande->name]) ? $resumhebdo_autorisationencours[$type_demande->name] : 0,
+        isset($resumhebdo_demandehorsperiode[$type_demande->name]) ? $resumhebdo_demandehorsperiode[$type_demande->name] : 0,
+        isset($resumhebdo__plafondhebdoatteint[$type_demande->name]) ? $resumhebdo__plafondhebdoatteint[$type_demande->name] : 0,
+      ];
     }
 }

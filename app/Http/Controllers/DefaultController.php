@@ -49,6 +49,7 @@ class DefaultController extends Controller
     public function defaultrequest($reqtype, $phonenum) {
 
       Carbon::setLocale('fr');
+      //Carbon::setWeekStartsAt(Carbon::MONDAY);
 
       $date_debut = Carbon::now();
       $date_intervaldemande_debut = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, 06, 00, 00);
@@ -78,6 +79,11 @@ class DefaultController extends Controller
       $curr_requete->created_at = Carbon::now()->addHours(1);
       $curr_requete->updated_at = Carbon::now()->addHours(1);
 
+      // $startOfWeek = $date_debut->startOfWeek();
+      // $endOfWeek = $date_debut->endOfWeek();
+
+      dd([$date_debut->startOfWeek(),Carbon::parse('last monday')->startOfDay()->addHours(1),Carbon::parse('next sunday')->endOfDay()->addHours(1)]);
+
       if ($type_demande->code == "4") {
           // Consultation
           $autorisation_en_cours = Autorisation::where('demandeur', $phonenum)->where('is_active', 1)->with('type_demande')->first();
@@ -88,9 +94,10 @@ class DefaultController extends Controller
               $msg_result = $type_reponse->msg_reponse;
           } else {
               $type_reponse = TypeReponse::where('code', 2)->get()->first();
-              $msg_result = $autorisation_en_cours->type_demande->getMessageConsultation($autorisation_en_cours->date_debut, $autorisation_en_cours->date_fin);
+              $msg_result = $autorisation_en_cours
+                ->type_demande->getMessageConsultation($autorisation_en_cours->date_debut, $autorisation_en_cours->date_fin);
           }
-          //dd($autorisation_en_cours,$autorisation_en_cours->type_demande);
+
           $curr_requete->Finalize($type_reponse->id);
       } elseif ($type_demande->code == "1" || $type_demande->code == "2" || $type_demande->code == "3") {
 
@@ -156,7 +163,7 @@ class DefaultController extends Controller
           $msg_result = $type_reponse->msg_reponse;
           $curr_requete->Finalize($type_reponse->id);
       }
-      //dd($curr_requete,$msg_result);
+
       return response()->json([
         'message' => $msg_result
       ]);

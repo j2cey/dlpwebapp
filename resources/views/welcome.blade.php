@@ -88,8 +88,6 @@
 
     <div class="col-xl-8">
 
-
-
       <div class="card-group">
         <div class="card">
           <div class="card-body">
@@ -180,12 +178,6 @@
         </div>
       </div>
 
-
-
-
-
-
-
     </div>
 
     <div class="col-xl-4">
@@ -203,4 +195,32 @@
 
 </div>
 <!-- end row -->
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card card-sec m-b-30">
+            <div class="card-body">
+                <h4 class="mt-0 header-title">Répartition Hebdo des Résultats par Demande</h4>
+                <div class="container">
+                  {!! $resumhebdodemandes_parresultat_chart->container() !!}
+                  {!! $resumhebdodemandes_parresultat_chart->script() !!}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card card-sec m-b-30">
+            <div class="card-body">
+                <h4 class="mt-0 header-title">Résumé Hebdo des Résultats</h4>
+
+                <div class="container">
+                  {!! $resumhebdo_resultats_chart->container() !!}
+                  {!! $resumhebdo_resultats_chart->script() !!}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection

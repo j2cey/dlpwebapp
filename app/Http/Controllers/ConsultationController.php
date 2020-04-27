@@ -43,7 +43,7 @@ class ConsultationController extends Controller
         //dd($request, $seltypds,$dt_deb,$dt_fin);
         $listvalues = Requete::search($dmeur,$statreqs,$seltypds,$dt_deb,$dt_fin)
               ->with('autorisation')->with('type_demande')->with('type_reponse')
-              ->orderBy('id')->paginate($perPage);
+              ->orderBy('id','desc')->paginate($perPage);
 
         if (is_null($seltypds)) {
           $seltypds = TypeDemande::where('name', 'x@gsf sgfscfs')->pluck('name', 'id');
