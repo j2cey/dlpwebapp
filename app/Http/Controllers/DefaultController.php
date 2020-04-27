@@ -50,10 +50,15 @@ class DefaultController extends Controller
 
       Carbon::setLocale('fr');
       //Carbon::setWeekStartsAt(Carbon::MONDAY);
+      // Type Demande
+      $type_demande = TypeDemande::where('code', $reqtype)->get()->first();
+      if (is_null($type_demande)) {
+          $type_demande = TypeDemande::where('code', "5")->get()->first();
+      }
 
       $date_debut = Carbon::now();
-      $date_intervaldemande_debut = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, 06, 00, 00);
-      $date_intervaldemande_fin = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, 19, 30, 00);
+      $date_intervaldemande_debut = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, $type_demande->periode_debut_heure, $type_demande->periode_debut_minute, 00);
+      $date_intervaldemande_fin = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, $type_demande->periode_fin_heure, $type_demande->periode_fin_minute, 00);
       $date_fin = Carbon::now();
 
       $date_debut->addHours(1);
@@ -62,13 +67,6 @@ class DefaultController extends Controller
       $date_fin->addHours(1);
 
       $msg_result = "";
-      $msg_autorisation = "";
-
-      // Type Demande
-      $type_demande = TypeDemande::where('code', $reqtype)->get()->first();
-      if (is_null($type_demande)) {
-          $type_demande = TypeDemande::where('code', "5")->get()->first();
-      }
 
       // Creation Nouvel objet requete
       $curr_requete = new Requete();
