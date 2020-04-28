@@ -21,6 +21,7 @@ class TypeReponsesSeeder extends Seeder
         $this->createNew(-4, "Demande Hors Periode Autorisée", "Désolé. Les demandes d autorisation ne sont pas déjà disponibles");
         $this->createNew(-5, "Plafond Hebdomadaire atteint", "Désolé. Vous avez atteint le Plafond Hebdomadaire pour ce type d autorisation");
         $this->createNew(-6, "Echec Consultation - Aucune Autorisation En Cours", "Aucune Autorisation En Cours");
+        $this->createNew(-7, "Echec Demande - Type Demande Innactif", "Type Demande Innactif");
      }
 
      private function createNew($code, $name, $msg_reponse) {

@@ -51,7 +51,7 @@ class DefaultController extends Controller
       Carbon::setLocale('fr');
       //Carbon::setWeekStartsAt(Carbon::MONDAY);
       // Type Demande
-      $type_demande = TypeDemande::where('code', $reqtype)->get()->first();
+      $type_demande = TypeDemande::where('entry_code', $reqtype)->get()->first();
       if (is_null($type_demande)) {
           $type_demande = TypeDemande::where('code', "5")->get()->first();
       }
@@ -77,12 +77,13 @@ class DefaultController extends Controller
       $curr_requete->created_at = Carbon::now()->addHours(1);
       $curr_requete->updated_at = Carbon::now()->addHours(1);
 
-      // $startOfWeek = $date_debut->startOfWeek();
-      // $endOfWeek = $date_debut->endOfWeek();
 
-      //dd([Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek(),Carbon::parse('last monday')->startOfDay()->addHours(1),Carbon::parse('next sunday')->endOfDay()->addHours(1)]);
-
-      if ($type_demande->code == "4") {
+      if (! $type_demande->is_active) {
+        // Type Demande Innactif
+        $type_reponse = TypeReponse::where('code', -7)->get()->first();
+        $msg_result = $type_reponse->msg_reponse;
+        $curr_requete->Finalize($type_reponse->id);
+      } elseif ($type_demande->code == "4") {
           // Consultation
           $autorisation_en_cours = Autorisation::where('demandeur', $phonenum)->where('is_active', 1)->with('type_demande')->first();
 
@@ -108,7 +109,6 @@ class DefaultController extends Controller
                 ->count();
               if ($autorisation_hebdo_obtenues >= $type_demande->plafond_hebdo) {
                   // Plafond Hebdo atteint
-                  //$msg_result = "Désolé. Vous avez atteint le Plafond Hebdomadaire pour ce type d autorisation";
                   $type_reponse = TypeReponse::where('code', -5)->get()->first();
                   $msg_result = $type_reponse->msg_reponse;
                   $curr_requete->Finalize($type_reponse->id);
@@ -143,7 +143,7 @@ class DefaultController extends Controller
                         'updated_at' => Carbon::now()->addHours(1),
                       ]);
                   } else {
-                      // Heure debut demandes non-atteinte
+                      // Demande Hors période ou innactive
                       $type_reponse = TypeReponse::where('code', -4)->get()->first();
                       $msg_result = $type_reponse->msg_reponse;
                       $curr_requete->Finalize($type_reponse->id);

@@ -167,27 +167,20 @@ class DashboardController extends Controller
               ->groupBy("typedemande")
               ->pluck('count','typedemande');
 
-        $resultatshebdo_demandealim = $this->getResultsHebdoForTypeDemande($resumhebdodemandes_autorisationaccordee,$resumhebdodemandes_autorisationencours,$resumhebdodemandes_demandehorsperiode,$resumhebdodemandes_plafondhebdoatteint,$type_demande_alimentaire);
-        $resultatshebdo_demandesante = $this->getResultsHebdoForTypeDemande($resumhebdodemandes_autorisationaccordee,$resumhebdodemandes_autorisationencours,$resumhebdodemandes_demandehorsperiode,$resumhebdodemandes_plafondhebdoatteint,$type_demande_sante);
-        $resultatshebdo_demandeurg = $this->getResultsHebdoForTypeDemande($resumhebdodemandes_autorisationaccordee,$resumhebdodemandes_autorisationencours,$resumhebdodemandes_demandehorsperiode,$resumhebdodemandes_plafondhebdoatteint,$type_demande_urgence);
+        $resumhebdodemandes_typedemandeinactif = DB::table("requetes")
+              ->select(DB::raw("COUNT(requetes.id) count, type_demandes.name typedemande"))
+              ->join('type_demandes', 'type_demandes.id', '=', 'requetes.type_demande_id')
+              ->whereBetween('requetes.created_at', [Carbon::now()->startOfWeek(),Carbon::now()->endOfWeek()])
+              ->where('requetes.type_reponse_id', 10)
+              ->groupBy("typedemande")
+              ->pluck('count','typedemande');
 
-        // dd($resumhebdodemandes_autorisationaccordee,
-        //   $resumhebdodemandes_autorisationencours,
-        //   $resumhebdodemandes_demandehorsperiode,
-        //   $resumhebdodemandes_plafondhebdoatteint,
-        //   $resultatshebdo_demandealim,
-        //   $resultatshebdo_demandesante,
-        //   $resultatshebdo_demandeurg);
-
+        $resultatshebdo_demandealim = $this->getResultsHebdoForTypeDemande($resumhebdodemandes_autorisationaccordee,$resumhebdodemandes_autorisationencours,$resumhebdodemandes_demandehorsperiode,$resumhebdodemandes_plafondhebdoatteint,$resumhebdodemandes_typedemandeinactif,$type_demande_alimentaire);
+        $resultatshebdo_demandesante = $this->getResultsHebdoForTypeDemande($resumhebdodemandes_autorisationaccordee,$resumhebdodemandes_autorisationencours,$resumhebdodemandes_demandehorsperiode,$resumhebdodemandes_plafondhebdoatteint,$resumhebdodemandes_typedemandeinactif,$type_demande_sante);
+        $resultatshebdo_demandeurg = $this->getResultsHebdoForTypeDemande($resumhebdodemandes_autorisationaccordee,$resumhebdodemandes_autorisationencours,$resumhebdodemandes_demandehorsperiode,$resumhebdodemandes_plafondhebdoatteint,$resumhebdodemandes_typedemandeinactif,$type_demande_urgence);
 
         $resumhebdodemandes_parresultat_chart = new RequeteChart;
-        $resumhebdodemandes_parresultat_chart->labels(['Autorisation Accordée','Autorisation En Cours','Demande Hors Periode','Plafond Hebdo atteint']);
-        // $resumhebdodemandes_parresultat_chart->options([
-        //     'ticks' => [
-        //         'suggestedMin' => 0,
-        //         'suggestedMax' => 50000,
-        //     ]
-        // ]);
+        $resumhebdodemandes_parresultat_chart->labels(['Autorisation Accordée','Autorisation En Cours','Demande Hors Periode','Plafond Hebdo atteint','Type Demande Inactif']);
 
         $resumhebdodemandes_parresultat_chart->dataset('Alimentaire', 'radar', $resultatshebdo_demandealim)
           ->backgroundColor('rgba(255, 206, 86, .2)') // 0.2)')
@@ -200,18 +193,20 @@ class DashboardController extends Controller
           ->color('rgba(255,99,132,.7)');
 
           $resumhebdo_resultats_chart = new RequeteChart;
-          $resumhebdo_resultats_chart->labels(['Autorisation Accordée','Autorisation En Cours','Demande Hors Periode','Plafond Hebdo atteint']);
-          $resumhebdo_resultats_chart->dataset('Résultats Hebdo', 'polarArea', [$resumhebdodemandes_autorisationaccordee->sum(),$resumhebdodemandes_autorisationencours->sum(),$resumhebdodemandes_demandehorsperiode->sum(),$resumhebdodemandes_plafondhebdoatteint->sum()])
+          $resumhebdo_resultats_chart->labels(['Autorisation Accordée','Autorisation En Cours','Demande Hors Periode','Plafond Hebdo atteint','Type Demande Inactif']);
+          $resumhebdo_resultats_chart->dataset('Résultats Hebdo', 'polarArea', [$resumhebdodemandes_autorisationaccordee->sum(),$resumhebdodemandes_autorisationencours->sum(),$resumhebdodemandes_demandehorsperiode->sum(),$resumhebdodemandes_plafondhebdoatteint->sum(),$resumhebdodemandes_typedemandeinactif->sum()])
             ->backgroundColor([
             'rgb(255, 206, 86,.2)',
             'rgb(75, 192, 192,.2)',
             'rgb(255, 99, 132,.2)',
-            'rgba(0, 10, 130,.2)'])
+            'rgba(0, 10, 130,.2)',
+            'rgba(127, 63, 191,.2)'])
             ->color([
             'rgb(255, 206, 86,.7)',
             'rgb(75, 192, 192,.7)',
             'rgb(255, 99, 132,.7)',
-            'rgba(0, 10, 130,.7)']
+            'rgba(0, 10, 130,.7)',
+            'rgba(127, 63, 191,.7)']
         );
 
         //return $reqs;
@@ -233,12 +228,13 @@ class DashboardController extends Controller
       return $data_rst;
     }
 
-    private function getResultsHebdoForTypeDemande($resumhebdo_autorisationaccordee,$resumhebdo_autorisationencours,$resumhebdo_demandehorsperiode,$resumhebdo__plafondhebdoatteint,$type_demande) {
+    private function getResultsHebdoForTypeDemande($resumhebdo_autorisationaccordee,$resumhebdo_autorisationencours,$resumhebdo_demandehorsperiode,$resumhebdo_plafondhebdoatteint,$resumhebdodemandes_typedemandeinactif,$type_demande) {
       return [
         isset($resumhebdo_autorisationaccordee[$type_demande->name]) ? $resumhebdo_autorisationaccordee[$type_demande->name] : 0,
         isset($resumhebdo_autorisationencours[$type_demande->name]) ? $resumhebdo_autorisationencours[$type_demande->name] : 0,
         isset($resumhebdo_demandehorsperiode[$type_demande->name]) ? $resumhebdo_demandehorsperiode[$type_demande->name] : 0,
-        isset($resumhebdo__plafondhebdoatteint[$type_demande->name]) ? $resumhebdo__plafondhebdoatteint[$type_demande->name] : 0,
+        isset($resumhebdo_plafondhebdoatteint[$type_demande->name]) ? $resumhebdo_plafondhebdoatteint[$type_demande->name] : 0,
+        isset($resumhebdodemandes_typedemandeinactif[$type_demande->name]) ? $resumhebdodemandes_typedemandeinactif[$type_demande->name] : 0,
       ];
     }
 }
