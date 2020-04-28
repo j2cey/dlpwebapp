@@ -46,8 +46,19 @@ class DefaultController extends Controller
         ]);
     }
 
+    private function convertHourMinuteToInt($h, $m) {
+      $num_length = strlen((string)$m);
+      if($num_length == 1) {
+          $hhmm = intval($h.'0'.$m);
+      } else {
+          $hhmm = intval($h.$m);
+      }
+      return $hhmm;
+    }
+
     public function defaultrequest($reqtype, $phonenum) {
 
+      //dd(Carbon::now(), Carbon::now()->locale('fr')->monthName);
       Carbon::setLocale('fr');
       //Carbon::setWeekStartsAt(Carbon::MONDAY);
       // Type Demande
@@ -59,6 +70,12 @@ class DefaultController extends Controller
       $date_debut = Carbon::now();
       $date_intervaldemande_debut = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, $type_demande->periode_debut_heure, $type_demande->periode_debut_minute, 00);
       $date_intervaldemande_fin = Carbon::create($date_debut->year, $date_debut->month, $date_debut->day, $type_demande->periode_fin_heure, $type_demande->periode_fin_minute, 00);
+      $adddays = false;
+      if (($date_intervaldemande_debut->diffInHours($date_intervaldemande_fin, false)) < 0) {
+        $date_intervaldemande_fin->addDays(1);
+        $adddays = true;
+      }
+
       $date_fin = Carbon::now();
 
       $date_debut->addHours(1);
@@ -67,7 +84,7 @@ class DefaultController extends Controller
       $date_fin->addHours(1);
 
       $msg_result = "";
-
+      
       // Creation Nouvel objet requete
       $curr_requete = new Requete();
       $curr_requete->reqtype = $reqtype;
