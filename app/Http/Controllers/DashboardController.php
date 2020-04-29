@@ -67,7 +67,7 @@ class DashboardController extends Controller
 
         //dd($consultations_dujour_par_heure,$autorisations_dujour_par_heure,$autorisationsalimentaires_dujour_par_heure,$autorisationssantes_dujour_par_heure,$autorisationsurgences_dujour_par_heure);
 
-        $heures_du_jour = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24];
+        $heures_du_jour = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
 
         $requetesetconsultations_dujour_chart = new RequeteChart;
         $requetesetconsultations_dujour_chart->labels($heures_du_jour);
@@ -221,7 +221,7 @@ class DashboardController extends Controller
 
     private function getRangedDataByDay($data) {
       $data_rst = [];
-      for ($i=1; $i < 25 ; $i++) {
+      for ($i=0; $i < 24 ; $i++) {
           $data_rst[] = isset($data[$i]) ? $data[$i] : 0;
       }
 
